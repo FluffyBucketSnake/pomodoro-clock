@@ -7,7 +7,8 @@ export const TimerState = {
 };
 
 export class Timer {
-  constructor(onRing, clock = new Clock()) {
+  constructor(duration, onRing, clock = new Clock()) {
+    this._duration = duration;
     this._onRing = onRing;
     this._clock = clock;
     this._state = TimerState.Stopped;
@@ -32,5 +33,9 @@ export class Timer {
 
   get elapsedTime() {
     return this._elapsedTime;
+  }
+
+  get remainingTime() {
+    return this._duration - this._elapsedTime;
   }
 }

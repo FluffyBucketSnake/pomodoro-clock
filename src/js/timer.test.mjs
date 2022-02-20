@@ -11,15 +11,17 @@ beforeEach(() => {
 });
 
 it('should not do anything when idle', () => {
+  const duration = toMillisecs(25);
   const onRing = jest.fn();
-  const timer = new Timer(onRing);
+  const timer = new Timer(duration, onRing);
 
-  jest.advanceTimersByTime(toMillisecs(25));
+  jest.advanceTimersByTime(duration);
 
   expect(timer.state).toBe(TimerState.Stopped);
   expect(timer.isStopped).toBe(true);
   expect(timer.isRunning).toBe(false);
   expect(timer.isPaused).toBe(false);
   expect(timer.elapsedTime).toBe(0);
+  expect(timer.remainingTime).toBe(duration);
   expect(onRing).not.toHaveBeenCalled();
 });
