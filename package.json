@@ -1,5 +1,6 @@
 {
   "name": "pomodoro-clock",
+  "type": "module",
   "version": "0.1.0",
   "description": "A simple web implementation of a pomodoro timer made using only Bootstrap 4 and JQuery",
   "repository": "https://github.com/FluffyBucketSnake/pomodoro-clock.git",
@@ -9,9 +10,38 @@
     "test": "jest"
   },
   "devDependencies": {
+    "@babel/core": "^7.17.5",
+    "@babel/preset-env": "^7.16.11",
+    "babel-jest": "^27.5.1",
     "eslint": "^8.9.0",
     "eslint-config-google": "^0.14.0",
     "jest": "^27.5.1",
+    "prettier": "^2.5.1",
+    "prettier-eslint": "^13.0.0",
     "vite": "^2.8.4"
-  }
+  },
+  "jest": {
+		"testMatch": [
+			"**/__tests__/**/*.?(m|c)js?(x)",
+			"**/?(*.)(spec|test).?(m|c)js?(x)"
+		],
+		"moduleFileExtensions": [
+			"js",
+			"cjs",
+			"mjs"
+		],
+		"transform": {
+			"^.+\\.[t|j]sx?$": "babel-jest", 
+			"^.+.m?js$": "babel-jest"
+		}
+	},
+	"babel": {
+		"env": {
+			"test": {
+				"presets": [
+					"@babel/preset-env"
+				]
+			}
+		}
+	}
 }
