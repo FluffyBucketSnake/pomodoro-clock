@@ -1,0 +1,7 @@
+{
+  "name": "pomodoro-clock",
+  "version": "0.1.0",
+  "description": "A simple web implementation of a pomodoro timer made using only Bootstrap 4 and JQuery",
+  "repository": "https://github.com/FluffyBucketSnake/pomodoro-clock.git",
+  "author": "Bruno Henrique Glowaski Morais <fluffybucketsnake@outlook.com>"
+}
