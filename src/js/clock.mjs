@@ -63,7 +63,7 @@ export class Clock {
   _tick() {
     const currentTime = Date.now();
     this._ellapsedTime = currentTime - this._lastTime;
-    _callbackWithLagCompensation();
+    this._callbackWithLagCompensation();
     this._lastTime = currentTime - this._ellapsedTime;
   }
 
