@@ -12,9 +12,13 @@ beforeEach(() => {
 
 function mockDateNow() {
   let time = 0;
-  const dateNowMock = () => time;
+  Date.now = () => time;
   const advanceDateByTime = (milliseconds) => (time += milliseconds);
-  return [dateNowMock, advanceDateByTime];
+  const advanceTimersToNextTimer = (realTimeElapsed) => {
+    advanceDateByTime(realTimeElapsed);
+    jest.advanceTimersToNextTimer();
+  };
+  return [advanceTimersToNextTimer, advanceDateByTime];
 }
 
 describe('presuming no browser lag', () => {
@@ -58,16 +62,31 @@ describe('presuming no browser lag', () => {
 
 describe('presuming browser lag', () => {
   it('should pass the actual time since the last tick as parameter', () => {
-    let advanceDateByTime;
-    [Date.now, advanceDateByTime] = mockDateNow();
-    const lag = 1.5;
+    const [advanceTimersToNextTimer] = mockDateNow();
+    const lag = 0.5;
     const tick = jest.fn((delta) => toSecs(delta));
     const clock = new Clock(tick);
 
     clock.start();
-    advanceDateByTime(toMillisecs(lag));
-    jest.advanceTimersToNextTimer();
 
-    expect(tick).toHaveReturnedWith(lag);
+    advanceTimersToNextTimer(toMillisecs(1 + lag));
+
+    expect(tick).toHaveReturnedWith(1 + lag);
+  });
+
+  it('should readjust tick timeout in case of lag', () => {
+    const [advanceTimersToNextTimer] = mockDateNow();
+    const lag = 0.5;
+    const deltas = [1 + lag, 1 - lag, 1];
+    const tick = jest.fn((delta) => toSecs(delta));
+    const clock = new Clock(tick);
+
+    clock.start();
+
+    for (const delta of deltas) {
+      advanceTimersToNextTimer(toMillisecs(delta));
+
+      expect(tick).toHaveLastReturnedWith(delta);
+    }
   });
 });
