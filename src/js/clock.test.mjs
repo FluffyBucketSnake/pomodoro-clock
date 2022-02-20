@@ -59,6 +59,16 @@ describe('presuming no browser lag', () => {
     expect(clock.isRunning).toBe(false);
     expect(tick).toHaveBeenCalledTimes(1);
   });
+
+  it('should start with the first tick at the requested time', () => {
+    const tick = jest.fn();
+    const clock = new Clock(tick);
+
+    clock.start(toMillisecs(0.5));
+    jest.advanceTimersByTime(toMillisecs(0.5));
+
+    expect(tick).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('presuming browser lag', () => {

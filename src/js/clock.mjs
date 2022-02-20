@@ -1,4 +1,4 @@
-const CLOCK_REVOLUTION_TIME = 1000;
+export const CLOCK_REVOLUTION_TIME = 1000;
 
 export class Clock {
   constructor(onTick) {
@@ -11,10 +11,10 @@ export class Clock {
     return !!this._timeout;
   }
 
-  start() {
+  start(timeTillFirstTick = CLOCK_REVOLUTION_TIME) {
     if (!this.isRunning) {
       this._timeSinceLastTick = Date.now();
-      this._scheduleTick();
+      this._scheduleTick(timeTillFirstTick);
     }
   }
 
