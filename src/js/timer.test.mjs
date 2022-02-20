@@ -136,3 +136,18 @@ it('should pause when requested', () => {
   expect(timer.remainingTime).toBe(duration / 2);
   expect(onRing).not.toHaveBeenCalled();
 });
+
+it('should resume from where it paused', () => {
+  const duration = toMillisecs(25);
+  const onRing = jest.fn();
+  const timer = new Timer(duration, onRing);
+
+  timer.run();
+  jest.advanceTimersByTime(duration / 2);
+  timer.pause();
+  timer.run();
+  jest.advanceTimersByTime(duration / 2);
+
+  expect(timer.elapsedTime).toBe(duration);
+  expect(onRing).toHaveBeenCalled();
+});

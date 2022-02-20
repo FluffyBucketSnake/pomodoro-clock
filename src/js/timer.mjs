@@ -1,4 +1,4 @@
-import {Clock} from './clock.mjs';
+import {Clock, CLOCK_REVOLUTION_TIME} from './clock.mjs';
 
 export const TimerState = {
   Stopped: 0,
@@ -45,7 +45,8 @@ export class Timer {
     this.isStopped && this.reset();
 
     this._timeSinceLastTick = Date.now();
-    this._clock.start();
+    const deltaTime = this._elapsedTime % CLOCK_REVOLUTION_TIME;
+    this._clock.start(CLOCK_REVOLUTION_TIME - deltaTime);
     this._state = TimerState.Running;
   }
 
