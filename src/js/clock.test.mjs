@@ -1,134 +1,49 @@
 import {jest} from '@jest/globals';
-import {ClockStates, Clock} from './clock.mjs';
-import {toMillisecs, toSecs} from './time.mjs';
+import {Clock} from './clock.mjs';
+import {toMillisecs} from './time.mjs';
 
 afterEach(() => {
   jest.useRealTimers();
 });
 
-it('should call function only once after each second', () => {
+beforeEach(() => {
   jest.useFakeTimers();
-  const callback = jest.fn((ellapsedTime) => toSecs(ellapsedTime));
-  const clock = new Clock(callback);
+});
+describe('presuming no browser lag', () => {
+  it('should not tick until start', () => {
+    const tick = jest.fn();
+    const clock = new Clock(tick);
 
-  clock.run();
-
-  expect(clock.state).toBe(ClockStates.Running);
-  expect(clock.isRunning).toBe(true);
-  expect(clock.elapsedTime).toBe(0);
-  expect(callback).not.toBeCalled();
-
-  for (let i = 1; i < 30; i++) {
     jest.advanceTimersByTime(toMillisecs(1));
 
-    expect(clock.elapsedTime).toBe(toMillisecs(i));
-    expect(callback).toHaveBeenCalledTimes(i);
-    expect(callback).toHaveLastReturnedWith(i);
-  }
-});
+    expect(clock.isRunning).toBe(false);
+    expect(tick).not.toHaveBeenCalled();
+  });
 
-it('should not tick after stop', () => {
-  jest.useFakeTimers();
-  const callback = jest.fn();
-  const clock = new Clock(callback);
+  it('should tick every second after start', () => {
+    const duration = 30;
+    const tick = jest.fn();
+    const clock = new Clock(tick);
 
-  clock.run();
-  clock.stop();
-  jest.advanceTimersByTime(toMillisecs(1));
+    clock.start();
 
-  expect(clock.state).toBe(ClockStates.Stopped);
-  expect(clock.isStopped).toBe(true);
-  expect(clock.isRunning).toBe(false);
-  expect(clock.elapsedTime).toBe(0);
-});
+    for (let t = 1; t <= duration; t++) {
+      jest.advanceTimersByTime(toMillisecs(1));
 
-it('should reset its timer when the method reset is called', () => {
-  jest.useFakeTimers();
-  const callback = jest.fn();
-  const clock = new Clock(callback);
-
-  clock.run();
-  jest.advanceTimersByTime(toMillisecs(0.5));
-  clock.reset();
-  jest.advanceTimersByTime(toMillisecs(0.5));
-
-  expect(clock.elapsedTime).toBe(toMillisecs(0.5));
-  expect(callback).not.toBeCalled();
-
-  jest.advanceTimersByTime(toMillisecs(0.5));
-
-  expect(clock.elapsedTime).toBe(toMillisecs(1));
-  expect(callback).toHaveBeenCalledTimes(1);
-});
-
-it('should pause its timer when the method pause is called', () => {
-  jest.useFakeTimers();
-  const callback = jest.fn();
-  const clock = new Clock(callback);
-
-  clock.run();
-  jest.advanceTimersByTime(toMillisecs(0.5));
-  clock.pause();
-  jest.advanceTimersByTime(toMillisecs(0.5));
-
-  expect(clock.state).toBe(ClockStates.Paused);
-  expect(clock.isRunning).toBe(false);
-  expect(clock.isStopped).toBe(false);
-  expect(clock.isPaused).toBe(true);
-  expect(clock.elapsedTime).toBe(toMillisecs(0.5));
-  expect(callback).not.toBeCalled();
-
-  clock.run();
-  jest.advanceTimersByTime(toMillisecs(0.5));
-
-  expect(clock.elapsedTime).toBe(toMillisecs(1.0));
-  expect(callback).toHaveBeenCalledTimes(1);
-});
-
-it('should compensate for interval and timeout inaccuracy', () => {
-  jest.useFakeTimers();
-  const callback = jest.fn();
-  let trueTime = 0;
-  Date.now = jest.fn(() => trueTime);
-  const clock = new Clock(callback);
-
-  clock.run();
-  trueTime = toMillisecs(4.3);
-  jest.advanceTimersByTime(toMillisecs(1));
-
-  expect(clock.elapsedTime).toBe(toMillisecs(4.3));
-  expect(callback).toHaveBeenCalledTimes(4);
-});
-
-it('should not tick if it is not running', () => {
-  jest.useFakeTimers();
-  const callback = jest.fn();
-  const clock = new Clock(callback);
-
-  clock.reset();
-  jest.advanceTimersByTime(toMillisecs(1));
-
-  expect(callback).not.toBeCalled();
-});
-
-it('should allow for elapsed time editing', () => {
-  jest.useFakeTimers();
-  let state = 0;
-  const callback = jest.fn((elapsedTime) => {
-    const durations = [25, 5];
-    const elapsedSecs = toSecs(elapsedTime);
-    const currentDuration = durations[state];
-    if (elapsedSecs >= currentDuration) {
-      state = (state + 1) % 2;
-      return true;
+      expect(clock.isRunning).toBe(true);
+      expect(tick).toHaveBeenCalledTimes(t);
     }
   });
-  const clock = new Clock(callback);
 
-  clock.run();
-  jest.advanceTimersByTime(toMillisecs(30));
+  it('should not tick after stop', () => {
+    const tick = jest.fn();
+    const clock = new Clock(tick);
 
-  expect(callback).toHaveBeenCalledTimes(30);
-  expect(callback).toHaveNthReturnedWith(25, true);
-  expect(callback).toHaveNthReturnedWith(30, true);
+    clock.start();
+    clock.stop();
+    jest.advanceTimersByTime(toMillisecs(1));
+
+    expect(clock.isRunning).toBe(false);
+    expect(tick).not.toHaveBeenCalled();
+  });
 });
