@@ -4,6 +4,7 @@ export class Clock {
   constructor(onTick) {
     this._onTick = onTick;
     this._timeout = null;
+    this._timeSinceLastTick = null;
   }
 
   get isRunning() {
@@ -12,7 +13,7 @@ export class Clock {
 
   start() {
     if (!this.isRunning) {
-      this._timeout = setTimeout(() => this._tick(), CLOCK_REVOLUTION_TIME);
+      this._scheduleTick(Date.now());
     }
   }
 
@@ -23,8 +24,15 @@ export class Clock {
     }
   }
 
-  _tick() {
-    this._onTick();
+  _scheduleTick(currentTime) {
+    this._timeSinceLastTick = currentTime;
     this._timeout = setTimeout(() => this._tick(), CLOCK_REVOLUTION_TIME);
+  }
+
+  _tick() {
+    const currentTime = Date.now();
+    const deltaTime = currentTime - this._timeSinceLastTick;
+    this._onTick(deltaTime);
+    this._scheduleTick(currentTime);
   }
 }

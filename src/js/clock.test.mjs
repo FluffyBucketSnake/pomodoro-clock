@@ -1,6 +1,6 @@
 import {jest} from '@jest/globals';
 import {Clock} from './clock.mjs';
-import {toMillisecs} from './time.mjs';
+import {toMillisecs, toSecs} from './time.mjs';
 
 afterEach(() => {
   jest.useRealTimers();
@@ -9,6 +9,14 @@ afterEach(() => {
 beforeEach(() => {
   jest.useFakeTimers();
 });
+
+function mockDateNow() {
+  let time = 0;
+  const dateNowMock = () => time;
+  const advanceDateByTime = (milliseconds) => (time += milliseconds);
+  return [dateNowMock, advanceDateByTime];
+}
+
 describe('presuming no browser lag', () => {
   it('should not tick until start', () => {
     const tick = jest.fn();
@@ -45,5 +53,21 @@ describe('presuming no browser lag', () => {
 
     expect(clock.isRunning).toBe(false);
     expect(tick).not.toHaveBeenCalled();
+  });
+});
+
+describe('presuming browser lag', () => {
+  it('should pass the actual time since the last tick as parameter', () => {
+    let advanceDateByTime;
+    [Date.now, advanceDateByTime] = mockDateNow();
+    const lag = 1.5;
+    const tick = jest.fn((delta) => toSecs(delta));
+    const clock = new Clock(tick);
+
+    clock.start();
+    advanceDateByTime(toMillisecs(lag));
+    jest.advanceTimersToNextTimer();
+
+    expect(tick).toHaveReturnedWith(lag);
   });
 });
