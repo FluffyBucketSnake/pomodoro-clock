@@ -72,3 +72,29 @@ it('should tick every second', () => {
 
   expect(onTick).toHaveBeenCalledTimes(expectedNumberOfTicks);
 });
+
+it('should reset if it is run again after ringing', () => {
+  const duration = toMillisecs(25);
+  const onRing = jest.fn();
+  const timer = new Timer(duration, onRing);
+
+  timer.run();
+  jest.advanceTimersByTime(duration);
+  timer.run();
+  jest.advanceTimersByTime(duration);
+
+  expect(onRing).toHaveBeenCalledTimes(2);
+});
+
+it('should reset if requested, even if it is mid cycle', () => {
+  const duration = toMillisecs(25);
+  const onRing = jest.fn();
+  const timer = new Timer(duration, onRing);
+
+  timer.run();
+  jest.advanceTimersByTime(duration / 2);
+  timer.reset();
+  jest.advanceTimersByTime(duration + duration / 2);
+
+  expect(onRing).toHaveBeenCalledTimes(1);
+});

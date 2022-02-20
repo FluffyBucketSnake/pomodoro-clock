@@ -52,11 +52,12 @@ describe('presuming no browser lag', () => {
     const clock = new Clock(tick);
 
     clock.start();
+    jest.advanceTimersByTime(toMillisecs(1.5));
     clock.stop();
-    jest.advanceTimersByTime(toMillisecs(1));
+    jest.advanceTimersByTime(toMillisecs(20));
 
     expect(clock.isRunning).toBe(false);
-    expect(tick).not.toHaveBeenCalled();
+    expect(tick).toHaveBeenCalledTimes(1);
   });
 });
 

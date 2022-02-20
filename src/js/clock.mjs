@@ -19,7 +19,7 @@ export class Clock {
 
   stop() {
     if (this.isRunning) {
-      clearInterval(this._timeout);
+      clearTimeout(this._timeout);
       this._timeout = null;
     }
   }
@@ -33,6 +33,6 @@ export class Clock {
     const currentTime = Date.now();
     const deltaTime = currentTime - this._timeSinceLastTick;
     this._onTick(deltaTime);
-    this._scheduleTick(currentTime);
+    this.isRunning && this._scheduleTick(currentTime);
   }
 }

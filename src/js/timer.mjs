@@ -41,8 +41,14 @@ export class Timer {
   }
 
   run() {
+    this.isStopped && this.reset();
+
     this._clock.start();
     this._state = TimerState.Running;
+  }
+
+  reset() {
+    this._elapsedTime = 0;
   }
 
   _onClockTick(deltaTime) {
@@ -52,6 +58,7 @@ export class Timer {
   }
 
   _ring() {
+    this._clock.stop();
     this._state = TimerState.Stopped;
     this._onRing && this._onRing();
   }
