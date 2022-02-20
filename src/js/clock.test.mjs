@@ -64,9 +64,13 @@ it('should pause its timer when the method pause is called', () => {
   clock.pause();
   jest.advanceTimersByTime(500);
 
+  expect(clock.state).toBe(ClockStates.Paused);
+  expect(clock.isRunning).toBe(false);
+  expect(clock.isStopped).toBe(false);
+  expect(clock.isPaused).toBe(true);
   expect(callback).not.toBeCalled();
 
-  clock.resume();
+  clock.run();
   jest.advanceTimersByTime(500);
 
   expect(callback).toHaveBeenCalledTimes(1);

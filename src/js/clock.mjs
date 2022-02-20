@@ -7,11 +7,11 @@ export const ClockStates = {
 };
 
 export class Clock {
-  constructor(callback) {
+  constructor(onTick) {
     this.state = ClockStates.Stopped;
-    this._callback = callback;
+    this._onTick = onTick;
     this._lastTime = 0;
-    this._ellapsedTime = 0;
+    this._elapsedTime = 0;
     this._interval = null;
     this._midCycleTimeout = null;
   }
@@ -29,61 +29,67 @@ export class Clock {
   }
 
   run() {
-    if (!this.isRunning) {
-      this._lastTime = Date.now();
-      this._startInterval();
-      this.state = ClockStates.Running;
+    switch (this.state) {
+      case ClockStates.Stopped:
+        this._clearTime();
+        this._startInterval();
+        break;
+      case ClockStates.Running:
+        return;
+      case ClockStates.Paused:
+        this._startMidCycleTimeout();
+        break;
     }
+    this.state = ClockStates.Running;
+  }
+
+  stop() {
+    if (this.isStopped) {
+      return;
+    }
+    this._clearInterval();
+    this.state = ClockStates.Stopped;
   }
 
   pause() {
     if (!this.isPaused) {
       const currentTime = Date.now();
-      this._ellapsedTime = currentTime - this._lastTime;
+      this._elapsedTime = currentTime - this._lastTime;
       this._clearInterval();
       this.state = ClockStates.Paused;
     }
   }
 
   reset() {
-    if (this._interval) {
+    this._clearTime();
+    if (this.isRunning) {
       this._clearInterval();
-      this.start();
-    }
-  }
-
-  resume() {
-    if (this._ellapsedTime !== 0) {
-      this._startMidCycleTimeout();
-    } else {
       this._startInterval();
     }
   }
 
-  _tick() {
-    const currentTime = Date.now();
-    this._ellapsedTime = currentTime - this._lastTime;
-    this._callbackWithLagCompensation();
-    this._lastTime = currentTime - this._ellapsedTime;
+  _clearTime() {
+    this._elapsedTime = 0;
+    this._lastTime = Date.now();
   }
 
-  _callbackWithLagCompensation() {
-    while (this._ellapsedTime >= CLOCK_RESOLUTION_TIME) {
-      this._callback();
-      this._ellapsedTime -= CLOCK_RESOLUTION_TIME;
+  _tick() {
+    const currentTime = Date.now();
+    this._elapsedTime = currentTime - this._lastTime;
+    while (this._elapsedTime >= CLOCK_RESOLUTION_TIME) {
+      this._onTick();
+      this._elapsedTime -= CLOCK_RESOLUTION_TIME;
     }
+    this._lastTime = currentTime - this._elapsedTime;
   }
 
   _startInterval() {
-    this._clearInterval();
     this._interval = setInterval(() => this._tick(), CLOCK_RESOLUTION_TIME);
   }
 
   _clearInterval() {
-    if (this._interval) {
-      clearInterval(this._interval);
-      this._interval = null;
-    }
+    clearInterval(this._interval);
+    this._interval = null;
     if (this._midCycleTimeout) {
       clearTimeout(this._midCycleTimeout);
       this._midCycleTimeout = null;
@@ -92,7 +98,7 @@ export class Clock {
 
   _startMidCycleTimeout() {
     const remainingTimeUntilResolution =
-      CLOCK_RESOLUTION_TIME - this._ellapsedTime;
+      CLOCK_RESOLUTION_TIME - this._elapsedTime;
     this._midCycleTimeout = setTimeout(() => {
       this._tick();
       this._startInterval();
