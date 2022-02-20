@@ -13,7 +13,8 @@ export class Clock {
 
   start() {
     if (!this.isRunning) {
-      this._scheduleTick(Date.now());
+      this._timeSinceLastTick = Date.now();
+      this._scheduleTick();
     }
   }
 
@@ -24,15 +25,17 @@ export class Clock {
     }
   }
 
-  _scheduleTick(currentTime) {
-    this._timeSinceLastTick = currentTime;
-    this._timeout = setTimeout(() => this._tick(), CLOCK_REVOLUTION_TIME);
+  _scheduleTick(timeTillTick = CLOCK_REVOLUTION_TIME) {
+    this._timeout = setTimeout(() => this._tick(), timeTillTick);
   }
 
   _tick() {
     const currentTime = Date.now();
     const deltaTime = currentTime - this._timeSinceLastTick;
     this._onTick(deltaTime);
-    this.isRunning && this._scheduleTick(currentTime);
+    this._timeSinceLastTick = currentTime;
+    const readjustedTickTime =
+      CLOCK_REVOLUTION_TIME - (deltaTime % CLOCK_REVOLUTION_TIME);
+    this.isRunning && this._scheduleTick(readjustedTickTime);
   }
 }
