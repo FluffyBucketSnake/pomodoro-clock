@@ -5,7 +5,7 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-test('Clock should call function only once after one second', () => {
+test('Clock should call function only once after each second', () => {
   jest.useFakeTimers();
   const callback = jest.fn();
   const clock = new Clock(callback);
@@ -14,9 +14,11 @@ test('Clock should call function only once after one second', () => {
 
   expect(callback).not.toBeCalled();
 
-  jest.advanceTimersByTime(1000);
+  for (let i = 1; i < 30; i++) {
+    jest.advanceTimersByTime(1000);
 
-  expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledTimes(i);
+  }
 });
 
 test('Clock should reset its timer when the method reset is called', () => {
