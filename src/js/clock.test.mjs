@@ -110,3 +110,25 @@ it('should not tick if it is not running', () => {
 
   expect(callback).not.toBeCalled();
 });
+
+it('should allow for elapsed time editing', () => {
+  jest.useFakeTimers();
+  let state = 0;
+  const callback = jest.fn((elapsedTime) => {
+    const durations = [25, 5];
+    const elapsedSecs = toSecs(elapsedTime);
+    const currentDuration = durations[state];
+    if (elapsedSecs >= currentDuration) {
+      state = (state + 1) % 2;
+      return true;
+    }
+  });
+  const clock = new Clock(callback);
+
+  clock.run();
+  jest.advanceTimersByTime(toMillisecs(30));
+
+  expect(callback).toHaveBeenCalledTimes(30);
+  expect(callback).toHaveNthReturnedWith(25, true);
+  expect(callback).toHaveNthReturnedWith(30, true);
+});

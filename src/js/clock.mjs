@@ -87,7 +87,9 @@ export class Clock {
     this._deltaTime += currentTime - this._lastTickTime;
     while (this._deltaTime >= CLOCK_RESOLUTION_TIME) {
       this._elapsedTime += CLOCK_RESOLUTION_TIME;
-      this._onTick(this._elapsedTime);
+      if (this._onTick(this._elapsedTime)) {
+        this._elapsedTime = 0;
+      }
       this._deltaTime -= CLOCK_RESOLUTION_TIME;
     }
     this._lastTickTime = currentTime - this._deltaTime;
