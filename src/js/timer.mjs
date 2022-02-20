@@ -7,9 +7,10 @@ export const TimerState = {
 };
 
 export class Timer {
-  constructor(duration, onRing) {
+  constructor(duration, onRing, onTick) {
     this._duration = duration;
     this._onRing = onRing;
+    this._onTick = onTick;
     this._clock = new Clock((deltaTime) => this._onClockTick(deltaTime));
     this._state = TimerState.Stopped;
     this._elapsedTime = 0;
@@ -46,13 +47,12 @@ export class Timer {
 
   _onClockTick(deltaTime) {
     this._elapsedTime = Math.min(this._elapsedTime + deltaTime, this._duration);
-    if (this._elapsedTime === this._duration) {
-      this._ring();
-    }
+    this._onTick && this._onTick({deltaTime, elapsedTime: this.elapsedTime});
+    this.remainingTime === 0 && this._ring();
   }
 
   _ring() {
     this._state = TimerState.Stopped;
-    this._onRing();
+    this._onRing && this._onRing();
   }
 }

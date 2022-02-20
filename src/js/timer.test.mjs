@@ -60,3 +60,15 @@ it('should ring when it elapses its duration', () => {
   expect(timer.remainingTime).toBe(0);
   expect(onRing).toHaveBeenCalled();
 });
+
+it('should tick every second', () => {
+  const expectedNumberOfTicks = 25;
+  const duration = toMillisecs(expectedNumberOfTicks);
+  const onTick = jest.fn();
+  const timer = new Timer(duration, null, onTick);
+
+  timer.run();
+  jest.advanceTimersByTime(duration);
+
+  expect(onTick).toHaveBeenCalledTimes(expectedNumberOfTicks);
+});
