@@ -98,3 +98,41 @@ it('should reset if requested, even if it is mid cycle', () => {
 
   expect(onRing).toHaveBeenCalledTimes(1);
 });
+
+it('should stop if requested', () => {
+  const duration = toMillisecs(25);
+  const onRing = jest.fn();
+  const timer = new Timer(duration, onRing);
+
+  timer.run();
+  jest.advanceTimersByTime(duration / 2);
+  timer.stop();
+  jest.advanceTimersByTime(duration);
+
+  expect(timer.state).toBe(TimerState.Stopped);
+  expect(timer.isStopped).toBe(true);
+  expect(timer.isRunning).toBe(false);
+  expect(timer.isPaused).toBe(false);
+  expect(timer.elapsedTime).toBe(0);
+  expect(timer.remainingTime).toBe(duration);
+  expect(onRing).not.toHaveBeenCalled();
+});
+
+it('should pause when requested', () => {
+  const duration = toMillisecs(25);
+  const onRing = jest.fn();
+  const timer = new Timer(duration, onRing);
+
+  timer.run();
+  jest.advanceTimersByTime(duration / 2);
+  timer.pause();
+  jest.advanceTimersByTime(duration);
+
+  expect(timer.state).toBe(TimerState.Paused);
+  expect(timer.isStopped).toBe(false);
+  expect(timer.isRunning).toBe(false);
+  expect(timer.isPaused).toBe(true);
+  expect(timer.elapsedTime).toBe(duration / 2);
+  expect(timer.remainingTime).toBe(duration / 2);
+  expect(onRing).not.toHaveBeenCalled();
+});

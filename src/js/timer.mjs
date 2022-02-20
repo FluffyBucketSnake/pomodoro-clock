@@ -14,6 +14,7 @@ export class Timer {
     this._clock = new Clock((deltaTime) => this._onClockTick(deltaTime));
     this._state = TimerState.Stopped;
     this._elapsedTime = 0;
+    this._timeSinceLastTick = 0;
   }
 
   get state() {
@@ -43,15 +44,32 @@ export class Timer {
   run() {
     this.isStopped && this.reset();
 
+    this._timeSinceLastTick = Date.now();
     this._clock.start();
     this._state = TimerState.Running;
+  }
+
+  pause() {
+    if (this.isRunning) {
+      const deltaTime = Date.now() - this._timeSinceLastTick;
+      this._elapsedTime += deltaTime;
+    }
+    this._clock.stop();
+    this._state = TimerState.Paused;
   }
 
   reset() {
     this._elapsedTime = 0;
   }
 
+  stop() {
+    this._clock.stop();
+    this._elapsedTime = 0;
+    this._state = TimerState.Stopped;
+  }
+
   _onClockTick(deltaTime) {
+    this._timeSinceLastTick = Date.now();
     this._elapsedTime = Math.min(this._elapsedTime + deltaTime, this._duration);
     this._onTick && this._onTick({deltaTime, elapsedTime: this.elapsedTime});
     this.remainingTime === 0 && this._ring();
