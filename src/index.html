@@ -17,7 +17,7 @@
     />
 
     <style>
-      #timer {
+      .pc-tc {
         border-radius: 50%;
         width: 315px;
         height: 315px;
@@ -29,7 +29,7 @@
         margin: 20px;
       }
 
-      #timer-overlay {
+      .pc-tc-overlay {
         border-radius: 50%;
         width: 299px;
         height: 299px;
@@ -41,43 +41,43 @@
         flex-direction: column;
       }
 
-      #timer-time {
+      .pc-tc-time {
         top: 50%;
         font-size: 64px;
         font-weight: bolder;
       }
 
-      #timer-state {
+      .pc-tc-state {
         font-size: 24px;
         font-weight: bold;
       }
 
-      #timer-session {
+      .pc-tc-session {
         font-size: 18px;
         font-weight: normal;
       }
 
-      #timer.inactive {
+      .pc-tc.inactive {
         background-color: #6c757d;
       }
 
-      #timer-time.inactive {
+      .pc-tc-time.inactive {
         color: #6c757d;
       }
 
-      #timer.work {
+      .pc-tc.work {
         background-color: #007bff;
       }
 
-      #timer-time.work {
+      .pc-tc-time.work {
         color: #007bff;
       }
 
-      #timer.break {
+      .pc-tc.break {
         background-color: #ffc107;
       }
 
-      #timer-time.break {
+      .pc-tc-time.break {
         color: #ffc107;
       }
 
@@ -327,7 +327,7 @@
         let break_duration = 5 * 60;
         let nsession = 0;
         let timer = createTimer();
-        let timerClockComponent;
+        const timerClockComponent = new TimerClockComponent();
 
         // Timer controls.
 
@@ -378,8 +378,8 @@
           // Fetch duration.
           work_duration = parseInt($txtDurationWork.val() * 60);
           break_duration = parseInt($txtDurationBreak.val() * 60);
-          // Update time measurement.
-          update_time(timer.elapsedSeconds);
+          // Stop timer.
+          set_state(TimerState.Stopped);
         });
 
         $btnResetOptions.click(reset_options);
@@ -418,6 +418,8 @@
         });
 
         // Initial state.
+        const $root = $('#root');
+        $root.prepend(timerClockComponent.rootElement);
         set_state(TimerState.Stopped);
         reset_options();
 
@@ -432,19 +434,19 @@
         }
 
         function reset() {
+          const wasRunning = timer.isRunning;
           set_session(0);
-          timer.reset();
-        }
-
-        function onClockTick(elapsedTime) {
-          update_timer(elapsedTime);
+          wasRunning && timer.run();
         }
 
         function set_session(to) {
           nsession = to;
           timer.stop();
           timer = createTimer();
-          update_timer();
+          timerClockComponent.elapsedTime = 0;
+          timerClockComponent.duration = toMillisecs(get_session_duration());
+          timerClockComponent.session = nsession;
+          timerClockComponent.sessionType = nsession % 2;
         }
 
         function set_state(new_state) {
@@ -488,9 +490,13 @@
               // Show options.
               $panelOptions.show();
               timer.stop();
+              timerClockComponent.elapsedTime = 0;
+              timerClockComponent.duration = toMillisecs(
+                get_session_duration()
+              );
               break;
           }
-          update_timer(timer.elapsedTime);
+          timerClockComponent.timerState = new_state;
         }
 
         // 'Private' functions
@@ -498,8 +504,14 @@
         function createTimer() {
           return new Timer(
             toMillisecs(get_session_duration()),
-            () => set_session(nsession + 1),
-            ({elapsedTime}) => onClockTick(elapsedTime)
+            () => {
+              set_session(nsession + 1);
+              $audioAlarm[0].play();
+              timer.run();
+            },
+            ({elapsedTime}) => {
+              timerClockComponent.elapsedTime = elapsedTime;
+            }
           );
         }
 
@@ -525,18 +537,6 @@
             value = Math.max(parseInt(min), value);
           }
           return value;
-        }
-
-        function update_timer(elapsedTime = 0) {
-          timerClockComponent = new TimerClockComponent(
-            elapsedTime,
-            toMillisecs(get_session_duration()),
-            nsession,
-            nsession % 2,
-            timer.state
-          );
-          $('#timer').remove();
-          $('#root').prepend(timerClockComponent.rootElement);
         }
       });
     </script>

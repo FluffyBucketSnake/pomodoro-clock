@@ -1,10 +1,6 @@
 import {TimerState} from '../timer.mjs';
 import {toMillisecs, toSecs} from '../time.mjs';
 
-function pad_left(number, padding = 2) {
-  return `${'0'.repeat(padding)}${number}`.slice(-padding);
-}
-
 export const SessionType = {
   Work: 0,
   Break: 1,
@@ -18,74 +14,155 @@ export class TimerClockComponent {
       spanState: this._spanState,
       spanSession: this._spanSession,
     } = this._createDOM(elapsedTime, duration, session, sessionType, state));
+    this.duration = 0;
+    this.elapsedTime = 0;
+    this.session = 0;
+    this.sessionType = SessionType.Work;
+    this.timerState = TimerState.Stopped;
+  }
+
+  set duration(value) {
+    this._duration = value;
+    this._updateTimeText();
+    this._updateGradient();
+  }
+
+  set elapsedTime(value) {
+    this._elapsedTime = value;
+    this._updateTimeText();
+    this._updateGradient();
+  }
+
+  set session(value) {
+    this._session = value;
+    this._updateSessionText();
+  }
+
+  set sessionType(value) {
+    this._sessionType = value;
+    this._updateStateText();
+    this._updateRootElementClasses();
+  }
+
+  set timerState(value) {
+    this._timerState = value;
+    this._updateStateText();
+    this._updateRootElementClasses();
   }
 
   get rootElement() {
     return this._rootElement;
   }
 
-  _createDOM(elapsedTime, duration, session, sessionType, state) {
-    const durationInSeconds = Math.floor(toSecs(duration));
-    const elapsedSeconds = Math.floor(toSecs(elapsedTime));
-    const remainingSeconds = durationInSeconds - elapsedSeconds;
-    const seconds = remainingSeconds % 60;
-    const minutes = (remainingSeconds - seconds) / 60;
+  _createDOM() {
+    const spanTime = createEmptySpan('pc-tc-time');
+    const spanState = createEmptySpan('pc-tc-state');
+    const spanSession = createEmptySpan('pc-tc-session');
 
-    const textTime = `${pad_left(minutes)}:${pad_left(seconds)}`;
-    const spanTime = $(`<span id="timer-time">${textTime}</span>`);
-
-    const textState = this._getStateText(state, sessionType);
-    const spanState = $(`<span id="timer-state">${textState}</span>`);
-
-    const textSession = `Session ${session}`;
-    const spanSession = $(`<span id="timer-session">${textSession}</span>`);
-
-    const timerOverlay = $('<div id="timer-overlay"></div>');
+    const timerOverlay = createEmptyDiv('pc-tc-overlay');
     timerOverlay.append(spanTime);
     timerOverlay.append(spanState);
     timerOverlay.append(spanSession);
 
-    const progress = elapsedTime / duration;
-    const rootElement = $('<div id="timer" class="mx-auto mb-5"></div>');
+    const rootElement = createEmptyDiv('pc-tc mx-auto mb-5');
     rootElement.append(timerOverlay);
-    rootElement.css('background-image', this._createClockGradient(progress));
 
-    return {rootElement};
+    return {rootElement, spanTime, spanState, spanSession};
   }
 
-  _getStateText(state, sessionType) {
-    const isBreak = sessionType !== SessionType.Break;
-    switch (state) {
-      case TimerState.Running:
-        return `${isBreak ? 'Work' : 'Break'}`;
-      case TimerState.Paused:
-        return `${isBreak ? 'Work' : 'Break'}(Paused)`;
-      case TimerState.Stopped:
-      default:
-        return 'Ready?';
-    }
+  _updateTimeText() {
+    this._spanTime.text(getTimeText(this._duration, this._elapsedTime));
   }
 
-  _createClockGradient(progress) {
-    const deg = progress * 360;
-    const a = '#6c757d';
-    const b = '#e9ecef';
-    if (deg > 180) {
-      return `linear-gradient(${
-        deg + 180
-      }deg, ${b} 50%, transparent 50%), linear-gradient(180deg, ${a} 50%, ${b} 50%)`;
-    } else {
-      return `linear-gradient(${deg}deg, ${a} 50%, transparent 50%), linear-gradient(180deg, ${a} 50%, ${b} 50%)`;
-    }
+  _updateSessionText() {
+    this._spanSession.text(getSessionText(this._session));
+  }
+
+  _updateStateText() {
+    this._spanState.text(getStateText(this._timerState));
+  }
+
+  _updateGradient() {
+    const progressValue =
+      this._duration != 0 ? this._elapsedTime / this._duration : 0;
+    const foregroundColor = this._rootElement.css('background-color');
+    const backgroundColor = '#e9ecef';
+    this._rootElement.css(
+      'background-image',
+      createClockGradient(progressValue, foregroundColor, backgroundColor)
+    );
+  }
+
+  _updateRootElementClasses() {
+    this._rootElement.removeClass(PomodoroClockState.Inactive);
+    this._rootElement.removeClass(PomodoroClockState.Work);
+    this._rootElement.removeClass(PomodoroClockState.Break);
+    const newClass = getPomodoroClockState(this._timerState, this._sessionType);
+    this._rootElement.addClass(newClass);
+    this._updateGradient();
   }
 }
 
-{
-  /* <div id="timer" class="mx-auto mb-5">
-  <div id="timer-overlay">
-    <span id="timer-time">25:00</span>
-    <span id="timer-state">Ready?</span>
-    <span id="timer-session">Session 0</span>
-  </div>
-</div> */
+const PomodoroClockState = {
+  Inactive: 'inactive',
+  Work: 'work',
+  Break: 'break',
+};
+
+const createEmptySpan = (className) => $(`<span class="${className}"></span>`);
+
+const createEmptyDiv = (className) => $(`<div class="${className}"></div>`);
+
+function getTimeText(duration, elapsedTime) {
+  const durationInSeconds = Math.floor(toSecs(duration));
+  const elapsedSeconds = Math.floor(toSecs(elapsedTime));
+  const remainingSeconds = durationInSeconds - elapsedSeconds;
+  const seconds = remainingSeconds % 60;
+  const minutes = (remainingSeconds - seconds) / 60;
+
+  const textTime = `${padNumberLeft(minutes)}:${padNumberLeft(seconds)}`;
+  return textTime;
+}
+
+const padNumberLeft = (number, padding = 2) =>
+  `${'0'.repeat(padding)}${number}`.slice(-padding);
+
+function getStateText(state, sessionType) {
+  const isBreak = sessionType !== SessionType.Break;
+  switch (state) {
+    case TimerState.Running:
+      return `${isBreak ? 'Work' : 'Break'}`;
+    case TimerState.Paused:
+      return `${isBreak ? 'Work' : 'Break'}(Paused)`;
+    case TimerState.Stopped:
+    default:
+      return 'Ready?';
+  }
+}
+
+const getSessionText = (session) => `Session ${session}`;
+
+function createClockGradient(progress, foregroundColor, backgroundColor) {
+  const deg = progress * 360;
+  if (deg > 180) {
+    return `linear-gradient(${
+      deg + 180
+    }deg, ${backgroundColor} 50%, transparent 50%), linear-gradient(180deg, ${foregroundColor} 50%, ${backgroundColor} 50%)`;
+  } else {
+    return `linear-gradient(${deg}deg, ${foregroundColor} 50%, transparent 50%), linear-gradient(180deg, ${foregroundColor} 50%, ${backgroundColor} 50%)`;
+  }
+}
+
+function getPomodoroClockState(timerState, sessionType) {
+  if (timerState === TimerState.Stopped) {
+    return PomodoroClockState.Inactive;
+  }
+  switch (sessionType) {
+    case SessionType.Break:
+      return PomodoroClockState.Break;
+    case SessionType.Work:
+      return PomodoroClockState.Work;
+    default:
+      return PomodoroClockState.Inactive;
+  }
 }
