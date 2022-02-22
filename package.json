@@ -32,10 +32,14 @@
       "cjs",
       "mjs"
     ],
+    "testEnvironment": "jsdom",
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest",
       "^.+.m?js$": "babel-jest"
-    }
+    },
+    "setupFiles": [
+      "./setup-jest.js"
+    ]
   },
   "babel": {
     "env": {
