@@ -309,9 +309,9 @@
     <!-- Internal script -->
     <script type="module">
       import {toSecs, toMillisecs} from './js/time.mjs';
-      import {Clock, ClockStates} from './js/clock.mjs';
+      import {Timer, TimerState} from './js/timer.mjs';
 
-      const TimerStates = {
+      const PomodoroState = {
         Inactive: 'inactive',
         Work: 'work',
         Break: 'break',
@@ -330,12 +330,10 @@
 
       $().ready(() => {
         // Application state.
-        let nsession = 0;
-        let clock = new Clock((elapsedTime) =>
-          onClockTick(toSecs(elapsedTime))
-        );
         let work_duration = 25 * 60;
         let break_duration = 5 * 60;
+        let nsession = 0;
+        let timer = createTimer();
 
         // Timer clock.
 
@@ -371,18 +369,18 @@
         // Event handlers.
 
         $btnStart.click(() => {
-          if (clock.state === ClockStates.Stopped) {
-            set_state(ClockStates.Running);
+          if (timer.state == TimerState.Stopped) {
+            set_state(TimerState.Running);
           } else {
-            set_state(ClockStates.Stopped);
+            set_state(TimerState.Stopped);
           }
         });
 
         $btnPause.click(() => {
-          if (clock.state === ClockStates.Paused) {
-            set_state(ClockStates.Running);
+          if (timer.state === TimerState.Paused) {
+            set_state(TimerState.Running);
           } else {
-            set_state(ClockStates.Paused);
+            set_state(TimerState.Paused);
           }
         });
 
@@ -397,7 +395,7 @@
           work_duration = parseInt($txtDurationWork.val() * 60);
           break_duration = parseInt($txtDurationBreak.val() * 60);
           // Update time measurement.
-          update_time(clock.elapsedSeconds);
+          update_time(timer.elapsedSeconds);
         });
 
         $btnResetOptions.click(reset_options);
@@ -436,7 +434,7 @@
         });
 
         // Initial state.
-        set_state(ClockStates.Stopped);
+        set_state(TimerState.Stopped);
         reset_options();
 
         // 'Public' functions
@@ -451,34 +449,32 @@
 
         function reset() {
           set_session(0);
-          clock.reset();
+          timer.reset();
         }
 
         function onClockTick(elapsedSeconds) {
-          if (elapsedSeconds > get_session_duration()) {
-            set_session(nsession + 1);
-            $audioAlarm[0].play();
-            return true;
-          } else {
-            update_time(elapsedSeconds);
-          }
+          update_time(elapsedSeconds);
         }
 
         function set_session(to) {
           nsession = to;
+          timer.stop();
+          timer = createTimer();
           update_timer();
         }
 
         function set_state(new_state) {
-          let old_state = clock.state;
+          const old_state = timer ? timer.state : undefined;
+          const state = new_state;
           if (typeof old_state !== 'undefined') {
             switch (old_state) {
-              case ClockStates.Paused:
+              case TimerState.Paused:
                 // Change Resume to Pause.
                 button_swap($btnPause, 'Pause', 'btn-success', 'btn-secondary');
                 break;
-              case ClockStates.Stopped:
-              default:
+              case TimerState.Stopped:
+                timer = createTimer();
+              case TimerState.Running:
                 // Change Stop to Start.
                 button_swap($btnStart, 'Stop', 'btn-success', 'btn-danger');
                 // Show subcontrols.
@@ -489,17 +485,17 @@
             }
           }
           switch (new_state) {
-            case ClockStates.Running:
+            case TimerState.Running:
               // Change Resume to Pause.
               button_swap($btnPause, 'Pause', 'btn-success', 'btn-secondary');
-              clock.run();
+              timer.run();
               break;
-            case ClockStates.Paused:
+            case TimerState.Paused:
               // Change Pause to Resume.
               button_swap($btnPause, 'Resume', 'btn-secondary', 'btn-success');
-              clock.pause();
+              timer.pause();
               break;
-            case ClockStates.Stopped:
+            case TimerState.Stopped:
             default:
               // Change Start to Stop.
               button_swap($btnStart, 'Start', 'btn-danger', 'btn-success');
@@ -507,18 +503,28 @@
               $panelSubcontrols.hide();
               // Show options.
               $panelOptions.show();
-              clock.stop();
+              timer.stop();
               break;
           }
 
+          update_timer();
+
           // Reset already updates the timer.
-          if (clock.state != ClockStates.Stopped) {
+          if (state != TimerState.Stopped) {
             // Update timer.
             update_timer();
           }
         }
 
         // 'Private' functions
+
+        function createTimer() {
+          return new Timer(
+            toMillisecs(get_session_duration()),
+            () => set_session(nsession + 1),
+            ({elapsedTime}) => onClockTick(toSecs(elapsedTime))
+          );
+        }
 
         function reset_options() {
           $rangeVolume.val(100);
@@ -606,25 +612,25 @@
         }
 
         function update_timer() {
-          switch (clock.state) {
-            case ClockStates.Running:
+          switch (timer.state) {
+            case TimerState.Running:
               set_timer_clock_state(
-                is_break() ? TimerStates.Break : TimerStates.Work
+                is_break() ? PomodoroState.Break : PomodoroState.Work
               );
               $timerState.text(`${is_break() ? 'Work' : 'Break'}`);
               break;
-            case ClockStates.Paused:
-              set_timer_clock_state(TimerStates.Inactive);
+            case TimerState.Paused:
+              set_timer_clock_state(PomodoroState.Inactive);
               $timerState.text(`${is_break() ? 'Work' : 'Break'}(Paused)`);
               break;
-            case ClockStates.Stopped:
+            case TimerState.Stopped:
             default:
-              set_timer_clock_state(TimerStates.Inactive);
+              set_timer_clock_state(PomodoroState.Inactive);
               $timerState.text('Ready?');
               break;
           }
           $timerSession.text(
-            clock.state !== ClockStates.Stopped ? `Session ${nsession + 1}` : ''
+            timer.state !== TimerState.Stopped ? `Session ${nsession + 1}` : ''
           );
         }
       });
