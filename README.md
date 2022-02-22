@@ -18,7 +18,7 @@ Based on [this app idea](https://github.com/florinpop17/app-ideas/blob/master/Pr
 
 - [x] User can start / pause, stop and reset the timers;
 
-- [ ] User needs an accurate timer.
+- [x] User needs an accurate timer.
 
 #### Additional
 
@@ -48,7 +48,7 @@ Baseado [nesta ideia de aplicativo](https://github.com/florinpop17/app-ideas/blo
 
 - [x] Usuário pode iniciar, parar, pauser, resumir e reiniciar o timer;
 
-- [ ] Usuário precisa de um temporizador preciso.
+- [x] Usuário precisa de um temporizador preciso.
 
 #### Adicional
 
