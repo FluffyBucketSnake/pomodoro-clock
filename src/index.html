@@ -98,15 +98,7 @@
     </header>
 
     <!-- Main body -->
-    <main class="container justify-content-between h-100">
-      <!-- Clock timer -->
-      <div id="timer" class="mx-auto mb-5">
-        <div id="timer-overlay">
-          <span id="timer-time">25:00</span>
-          <span id="timer-state">Ready?</span>
-          <span id="timer-session">Session 0</span>
-        </div>
-      </div>
+    <main id="root" class="container justify-content-between h-100">
       <!-- Controls -->
       <section class="container">
         <div id="panel-controls">
@@ -310,6 +302,7 @@
     <script type="module">
       import {toSecs, toMillisecs} from './js/time.mjs';
       import {Timer, TimerState} from './js/timer.mjs';
+      import {TimerClockComponent} from './js/components/timer-clock-component.mjs';
 
       const PomodoroState = {
         Inactive: 'inactive',
@@ -334,16 +327,7 @@
         let break_duration = 5 * 60;
         let nsession = 0;
         let timer = createTimer();
-
-        // Timer clock.
-
-        const $timer = $('#timer');
-        const $timerTime = $('#timer-time');
-        const $timerState = $('#timer-state');
-        const $timerSession = $('#timer-session');
-        const timer_background = '#e9ecef';
-        let timer_state = undefined;
-        let timer_progress = 0;
+        let timerClockComponent;
 
         // Timer controls.
 
@@ -452,8 +436,8 @@
           timer.reset();
         }
 
-        function onClockTick(elapsedSeconds) {
-          update_time(elapsedSeconds);
+        function onClockTick(elapsedTime) {
+          update_timer(elapsedTime);
         }
 
         function set_session(to) {
@@ -506,14 +490,7 @@
               timer.stop();
               break;
           }
-
-          update_timer();
-
-          // Reset already updates the timer.
-          if (state != TimerState.Stopped) {
-            // Update timer.
-            update_timer();
-          }
+          update_timer(timer.elapsedTime);
         }
 
         // 'Private' functions
@@ -522,7 +499,7 @@
           return new Timer(
             toMillisecs(get_session_duration()),
             () => set_session(nsession + 1),
-            ({elapsedTime}) => onClockTick(toSecs(elapsedTime))
+            ({elapsedTime}) => onClockTick(elapsedTime)
           );
         }
 
@@ -539,29 +516,6 @@
           button.addClass(to);
         }
 
-        function pad_left_number(number, padding) {
-          return `${'0'.repeat(padding)}${number}`.slice(-padding);
-        }
-
-        function set_timer_clock_state(new_state) {
-          if (timer_state) {
-            $timer.removeClass(timer_state);
-            $timerTime.removeClass(timer_state);
-          }
-          timer_state = new_state;
-          if (timer_state) {
-            $timer.addClass(timer_state);
-            $timerTime.addClass(timer_state);
-          }
-          update_gradient();
-        }
-
-        function set_timer_progress(p) {
-          p = Math.min(1, Math.max(0, p));
-          timer_progress = p;
-          update_gradient();
-        }
-
         function step(max, value, min, step) {
           value += step;
           if (max != null) {
@@ -573,65 +527,16 @@
           return value;
         }
 
-        function update_gradient() {
-          // Convert decimal to degrees.
-          const deg = timer_progress * 360;
-          // Get colors.
-          let a = $timer.css('background-color');
-          let b = timer_background;
-          // Build gradients.
-          let gradient = undefined;
-          if (deg > 180) {
-            gradient = `linear-gradient(${
-              deg + 180
-            }deg, ${b} 50%, transparent 50%), linear-gradient(180deg, ${a} 50%, ${b} 50%)`;
-          } else {
-            gradient = `linear-gradient(${deg}deg, ${a} 50%, transparent 50%), linear-gradient(180deg, ${a} 50%, ${b} 50%)`;
-          }
-          // Apply gradients.
-          $timer.css('background-image', gradient);
-        }
-
-        function update_time(elapsedSeconds) {
-          let duration = get_session_duration();
-
-          // Calculating the remaining time.
-          const remaining_time = duration - Math.round(elapsedSeconds);
-
-          // Calculating the minutes and seconds of the timer.
-          let seconds = remaining_time % 60;
-          let minutes = (remaining_time - seconds) / 60;
-
-          // Updating the timer label.
-          $timerTime.text(
-            `${pad_left_number(minutes, 2)}:${pad_left_number(seconds, 2)}`
+        function update_timer(elapsedTime = 0) {
+          timerClockComponent = new TimerClockComponent(
+            elapsedTime,
+            toMillisecs(get_session_duration()),
+            nsession,
+            nsession % 2,
+            timer.state
           );
-
-          // Update the timer.
-          set_timer_progress(elapsedSeconds / duration);
-        }
-
-        function update_timer() {
-          switch (timer.state) {
-            case TimerState.Running:
-              set_timer_clock_state(
-                is_break() ? PomodoroState.Break : PomodoroState.Work
-              );
-              $timerState.text(`${is_break() ? 'Work' : 'Break'}`);
-              break;
-            case TimerState.Paused:
-              set_timer_clock_state(PomodoroState.Inactive);
-              $timerState.text(`${is_break() ? 'Work' : 'Break'}(Paused)`);
-              break;
-            case TimerState.Stopped:
-            default:
-              set_timer_clock_state(PomodoroState.Inactive);
-              $timerState.text('Ready?');
-              break;
-          }
-          $timerSession.text(
-            timer.state !== TimerState.Stopped ? `Session ${nsession + 1}` : ''
-          );
+          $('#timer').remove();
+          $('#root').prepend(timerClockComponent.rootElement);
         }
       });
     </script>
