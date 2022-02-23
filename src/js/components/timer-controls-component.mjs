@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 import {TimerState} from '../timer.mjs';
 
 export class TimerControlsComponent {
