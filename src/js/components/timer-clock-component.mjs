@@ -9,13 +9,13 @@ export const SessionType = {
 };
 
 export class TimerClockComponent {
-  constructor(elapsedTime, duration, session, sessionType, state) {
+  constructor() {
     ({
       rootElement: this._rootElement,
       spanTime: this._spanTime,
       spanState: this._spanState,
       spanSession: this._spanSession,
-    } = this._createDOM(elapsedTime, duration, session, sessionType, state));
+    } = this._createDOM());
     this.duration = 0;
     this.elapsedTime = 0;
     this.session = 0;
