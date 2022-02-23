@@ -6,7 +6,8 @@
   "repository": "https://github.com/FluffyBucketSnake/pomodoro-clock.git",
   "author": "Bruno Henrique Glowaski Morais <fluffybucketsnake@outlook.com>",
   "scripts": {
-    "dev": "vite src/",
+    "build": "vite build",
+    "dev": "vite",
     "test": "jest"
   },
   "devDependencies": {
