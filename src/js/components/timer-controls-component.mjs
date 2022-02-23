@@ -2,13 +2,14 @@ import {TimerState} from '../timer.mjs';
 
 export class TimerControlsComponent {
   constructor(events) {
-    ({
-      onStart: this._onStart,
-      onStop: this._onStop,
-      onShowOptions: this._onShowOptions,
-      onPause: this._onPause,
-      onResume: this._onResume,
-    } = events);
+    events &&
+      ({
+        onStart: this._onStart,
+        onStop: this._onStop,
+        onShowOptions: this._onShowOptions,
+        onPause: this._onPause,
+        onResume: this._onResume,
+      } = events);
     ({
       rootElement: this._rootElement,
       buttons: this._buttons,

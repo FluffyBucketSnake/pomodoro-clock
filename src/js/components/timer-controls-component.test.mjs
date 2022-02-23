@@ -6,42 +6,37 @@ import $ from 'jquery';
 import {TimerControlsComponent} from './timer-controls-component.mjs';
 import {TimerState} from '../timer.mjs';
 
-test('idle state', () => {
-  const timerControlsComponent = new TimerControlsComponent();
-  $(document.body).append(timerControlsComponent.rootElement);
-
-  expect(screen.getByRole('button', {name: 'Start'})).toBeVisible();
-  expect(screen.getByRole('button', {name: 'Options'})).toBeVisible();
-  expect(screen.queryByRole('button', {name: 'Stop'})).toBeNull();
-  expect(screen.queryByRole('button', {name: 'Pause'})).toBeNull();
-  expect(screen.queryByRole('button', {name: 'Resume'})).toBeNull();
-  expect(screen.queryByRole('button', {name: 'Reset'})).toBeNull();
+beforeEach(() => {
+  $(document.body).empty();
 });
 
-test('running state', () => {
+test.each([
+  {
+    state: TimerState.Stopped,
+    prettyState: 'stopped',
+    visibleButtons: ['Start', 'Options'],
+  },
+  {
+    state: TimerState.Running,
+    prettyState: 'running',
+    visibleButtons: ['Stop', 'Pause', 'Reset'],
+  },
+  {
+    state: TimerState.Paused,
+    prettyState: 'paused',
+    visibleButtons: ['Stop', 'Resume', 'Reset'],
+  },
+])('$prettyState state', ({state, visibleButtons}) => {
   const timerControlsComponent = new TimerControlsComponent();
-  timerControlsComponent.timerState = TimerState.Running;
+  timerControlsComponent.timerState = state;
   $(document.body).append(timerControlsComponent.rootElement);
 
-  expect(screen.getByRole('button', {name: 'Stop'})).toBeVisible();
-  expect(screen.getByRole('button', {name: 'Pause'})).toBeVisible();
-  expect(screen.getByRole('button', {name: 'Reset'})).toBeVisible();
-  expect(screen.queryByRole('button', {name: 'Start'})).toBeNull();
-  expect(screen.queryByRole('button', {name: 'Options'})).toBeNull();
-  expect(screen.queryByRole('button', {name: 'Resume'})).toBeNull();
-});
+  const allAvailableButtons = screen.getAllByRole('button');
 
-test('paused state', () => {
-  const timerControlsComponent = new TimerControlsComponent();
-  timerControlsComponent.timerState = TimerState.Paused;
-  $(document.body).append(timerControlsComponent.rootElement);
-
-  expect(screen.getByRole('button', {name: 'Stop'})).toBeVisible();
-  expect(screen.getByRole('button', {name: 'Resume'})).toBeVisible();
-  expect(screen.getByRole('button', {name: 'Reset'})).toBeVisible();
-  expect(screen.queryByRole('button', {name: 'Start'})).toBeNull();
-  expect(screen.queryByRole('button', {name: 'Options'})).toBeNull();
-  expect(screen.queryByRole('button', {name: 'Pause'})).toBeNull();
+  expect(allAvailableButtons.map((el) => el.textContent)).toEqual(
+    visibleButtons
+  );
+  allAvailableButtons.forEach((el) => expect(el).toBeVisible());
 });
 
 test('should call only onStart if start button was clicked while stopped', () => {
