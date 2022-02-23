@@ -19,12 +19,15 @@ const ButtonEventMap = {
   Reset: 'onReset',
 };
 
-const EventNames = Object.values(ButtonEventMap);
+const Events = Object.values(ButtonEventMap);
 
 function createCallbacks() {
-  return Object.fromEntries(
-    EventNames.map((eventName) => [eventName, jest.fn()])
-  );
+  return Object.fromEntries(Events.map((ev) => [ev, jest.fn()]));
+}
+
+function getAllUndesiredEventsForButton(button) {
+  const {[button]: _, ...undesiredEvents} = ButtonEventMap;
+  return Object.values(undesiredEvents).map((ev) => ({button, ev}));
 }
 
 describe.each([
@@ -44,13 +47,13 @@ describe.each([
     visibleButtons: ['Stop', 'Resume', 'Reset'],
   },
 ])('while in state $prettyState', ({state, visibleButtons}) => {
-  it('should only show $visibleButtons buttons', () => {
+  it('should show $visibleButtons buttons', () => {
     const timerControlsComponent = new TimerControlsComponent();
-    timerControlsComponent.timerState = state;
     $(document.body).append(timerControlsComponent.rootElement);
 
-    const allAvailableButtons = screen.getAllByRole('button');
+    timerControlsComponent.timerState = state;
 
+    const allAvailableButtons = screen.getAllByRole('button');
     expect(allAvailableButtons.map((el) => el.textContent)).toEqual(
       visibleButtons
     );
@@ -58,21 +61,33 @@ describe.each([
   });
 
   it.each(
-    visibleButtons.map((text) => ({
-      text,
-      eventName: ButtonEventMap[text],
+    visibleButtons.map((button) => ({
+      button,
+      ev: ButtonEventMap[button],
     }))
-  )(
-    'should call $eventName if, and only if, $text is clicked',
-    ({text, eventName}) => {
-      const callbacks = createCallbacks();
-      const timerControlsComponent = new TimerControlsComponent(callbacks);
-      timerControlsComponent.timerState = state;
-      $(document.body).append(timerControlsComponent.rootElement);
+  )('should call $ev when $button is clicked', ({button, ev}) => {
+    const callbacks = createCallbacks();
+    const timerControlsComponent = new TimerControlsComponent(callbacks);
+    timerControlsComponent.timerState = state;
+    $(document.body).append(timerControlsComponent.rootElement);
 
-      $(screen.getByRole('button', {name: text})).click();
+    $(screen.getByRole('button', {name: button})).click();
 
-      expect(callbacks[eventName]).toBeCalled();
-    }
-  );
+    expect(callbacks[ev]).toBeCalled();
+  });
+
+  it.each(
+    visibleButtons
+      .map((button) => getAllUndesiredEventsForButton(button))
+      .flat()
+  )('should not call $ev when $button is clicked', ({button, ev}) => {
+    const callbacks = createCallbacks();
+    const timerControlsComponent = new TimerControlsComponent(callbacks);
+    timerControlsComponent.timerState = state;
+    $(document.body).append(timerControlsComponent.rootElement);
+
+    $(screen.getByRole('button', {name: button})).click();
+
+    expect(callbacks[ev]).not.toBeCalled();
+  });
 });

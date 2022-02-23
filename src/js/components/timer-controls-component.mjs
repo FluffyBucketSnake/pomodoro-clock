@@ -109,13 +109,19 @@ export class TimerControlsComponent {
   }
 
   _onStartStop() {
-    (this.hasBeenStarted && this._onStop && this._onStop()) ||
-      (this._onStart && this._onStart());
+    if (this.hasBeenStarted) {
+      this._onStop && this._onStop();
+    } else {
+      this._onStart && this._onStart();
+    }
   }
 
   _onPauseResume() {
-    (this.isPaused && this._onResume && this._onResume()) ||
-      (this._onPause && this._onPause());
+    if (this.isPaused) {
+      this._onResume && this._onResume();
+    } else {
+      this._onPause && this._onPause();
+    }
   }
   /* <section class="container">
   <div id="panel-controls">
