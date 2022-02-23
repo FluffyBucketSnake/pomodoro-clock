@@ -9,6 +9,7 @@ export class TimerControlsComponent {
         onShowOptions: this._onShowOptions,
         onPause: this._onPause,
         onResume: this._onResume,
+        onReset: this._onReset,
       } = events);
     ({
       rootElement: this._rootElement,
@@ -79,7 +80,7 @@ export class TimerControlsComponent {
     const buttonReset = $(
       '<button class="btn btn-secondary col-12 col-md-5 mr-auto mb-2">Reset</button>'
     );
-    buttonOptions.on('click', () => this._onReset && this._onReset());
+    this._onReset && buttonReset.on('click', () => this._onReset());
 
     const rowMain = $('<div class="row mb-2"></div>');
     rowMain.append(buttonStartStop);

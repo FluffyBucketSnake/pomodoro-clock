@@ -10,7 +10,24 @@ beforeEach(() => {
   $(document.body).empty();
 });
 
-test.each([
+const ButtonEventMap = {
+  Start: 'onStart',
+  Stop: 'onStop',
+  Options: 'onShowOptions',
+  Pause: 'onPause',
+  Resume: 'onResume',
+  Reset: 'onReset',
+};
+
+const EventNames = Object.values(ButtonEventMap);
+
+function createCallbacks() {
+  return Object.fromEntries(
+    EventNames.map((eventName) => [eventName, jest.fn()])
+  );
+}
+
+describe.each([
   {
     state: TimerState.Stopped,
     prettyState: 'stopped',
@@ -26,37 +43,36 @@ test.each([
     prettyState: 'paused',
     visibleButtons: ['Stop', 'Resume', 'Reset'],
   },
-])('$prettyState state', ({state, visibleButtons}) => {
-  const timerControlsComponent = new TimerControlsComponent();
-  timerControlsComponent.timerState = state;
-  $(document.body).append(timerControlsComponent.rootElement);
+])('while in state $prettyState', ({state, visibleButtons}) => {
+  it('should only show $visibleButtons buttons', () => {
+    const timerControlsComponent = new TimerControlsComponent();
+    timerControlsComponent.timerState = state;
+    $(document.body).append(timerControlsComponent.rootElement);
 
-  const allAvailableButtons = screen.getAllByRole('button');
+    const allAvailableButtons = screen.getAllByRole('button');
 
-  expect(allAvailableButtons.map((el) => el.textContent)).toEqual(
-    visibleButtons
+    expect(allAvailableButtons.map((el) => el.textContent)).toEqual(
+      visibleButtons
+    );
+    allAvailableButtons.forEach((el) => expect(el).toBeVisible());
+  });
+
+  it.each(
+    visibleButtons.map((text) => ({
+      text,
+      eventName: ButtonEventMap[text],
+    }))
+  )(
+    'should call $eventName if, and only if, $text is clicked',
+    ({text, eventName}) => {
+      const callbacks = createCallbacks();
+      const timerControlsComponent = new TimerControlsComponent(callbacks);
+      timerControlsComponent.timerState = state;
+      $(document.body).append(timerControlsComponent.rootElement);
+
+      $(screen.getByRole('button', {name: text})).click();
+
+      expect(callbacks[eventName]).toBeCalled();
+    }
   );
-  allAvailableButtons.forEach((el) => expect(el).toBeVisible());
-});
-
-test('should call only onStart if start button was clicked while stopped', () => {
-  const callbacks = {
-    onStart: jest.fn(),
-    onStop: jest.fn(),
-    onShowOptions: jest.fn(),
-    onPause: jest.fn(),
-    onResume: jest.fn(),
-    onReset: jest.fn(),
-  };
-  const timerControlsComponent = new TimerControlsComponent(callbacks);
-  $(document.body).append(timerControlsComponent.rootElement);
-
-  $(screen.getByRole('button', {name: 'Start'})).click();
-
-  expect(callbacks.onStart).toBeCalled();
-  expect(callbacks.onStop).not.toBeCalled();
-  expect(callbacks.onShowOptions).not.toBeCalled();
-  expect(callbacks.onPause).not.toBeCalled();
-  expect(callbacks.onResume).not.toBeCalled();
-  expect(callbacks.onReset).not.toBeCalled();
 });
