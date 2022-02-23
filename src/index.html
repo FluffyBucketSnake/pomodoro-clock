@@ -98,40 +98,7 @@
     </header>
 
     <!-- Main body -->
-    <main id="root" class="container justify-content-between h-100">
-      <!-- Controls -->
-      <section class="container">
-        <div id="panel-controls">
-          <div class="row mb-2">
-            <button id="btn-start" class="btn btn-success col-12">Start</button>
-          </div>
-          <div id="panel-subcontrols" class="row mb-2">
-            <button
-              id="btn-pause"
-              class="btn btn-secondary col-12 col-md-5 mr-auto mb-2"
-            >
-              Pause
-            </button>
-            <button
-              id="btn-reset"
-              class="btn btn-secondary col-12 col-md-5 mb-2"
-            >
-              Reset
-            </button>
-          </div>
-          <div id="panel-options" class="row mb-2">
-            <button
-              id="btn-options"
-              class="btn btn-secondary col-12"
-              data-toggle="modal"
-              data-target="#modal-options"
-            >
-              Options
-            </button>
-          </div>
-        </div>
-      </section>
-    </main>
+    <main id="root" class="container justify-content-between h-100"></main>
 
     <!-- Options modal -->
     <div id="modal-options" class="modal" tabindex="-1">
@@ -303,6 +270,7 @@
       import {toSecs, toMillisecs} from './js/time.mjs';
       import {Timer, TimerState} from './js/timer.mjs';
       import {TimerClockComponent} from './js/components/timer-clock-component.mjs';
+      import {TimerControlsComponent} from './js/components/timer-controls-component.mjs';
 
       const PomodoroState = {
         Inactive: 'inactive',
@@ -330,12 +298,19 @@
         const timerClockComponent = new TimerClockComponent();
 
         // Timer controls.
-
-        const $btnStart = $('#btn-start');
-        const $panelSubcontrols = $('#panel-subcontrols');
-        const $btnPause = $('#btn-pause');
-        const $btnReset = $('#btn-reset');
-        const $panelOptions = $('#panel-options');
+        const timerControlsCallbacks = {
+          onStart: () => set_state(TimerState.Running),
+          onStop: () => set_state(TimerState.Stopped),
+          onPause: () => set_state(TimerState.Paused),
+          onResume: () => set_state(TimerState.Running),
+          onReset: () => reset(),
+          onShowOptions: () => {
+            $('#modal-options').modal();
+          },
+        };
+        const timerControlsComponent = new TimerControlsComponent(
+          timerControlsCallbacks
+        );
 
         // Timer options.
 
@@ -351,25 +326,6 @@
         const $audioAlarm = $('#audio-alarm');
 
         // Event handlers.
-
-        $btnStart.click(() => {
-          if (timer.state == TimerState.Stopped) {
-            set_state(TimerState.Running);
-          } else {
-            set_state(TimerState.Stopped);
-          }
-        });
-
-        $btnPause.click(() => {
-          if (timer.state === TimerState.Paused) {
-            set_state(TimerState.Running);
-          } else {
-            set_state(TimerState.Paused);
-          }
-        });
-
-        $btnReset.click(reset);
-
         $btnSave.click(() => {
           // Volume.
           $audioAlarm[0].volume = $rangeVolume.val() / 100;
@@ -381,7 +337,6 @@
           // Stop timer.
           set_state(TimerState.Stopped);
         });
-
         $btnResetOptions.click(reset_options);
 
         // Decrease and increase buttons.
@@ -419,7 +374,8 @@
 
         // Initial state.
         const $root = $('#root');
-        $root.prepend(timerClockComponent.rootElement);
+        $root.append(timerClockComponent.rootElement);
+        $root.append(timerControlsComponent.rootElement);
         set_state(TimerState.Stopped);
         reset_options();
 
@@ -455,40 +411,22 @@
           if (typeof old_state !== 'undefined') {
             switch (old_state) {
               case TimerState.Paused:
-                // Change Resume to Pause.
-                button_swap($btnPause, 'Pause', 'btn-success', 'btn-secondary');
                 break;
               case TimerState.Stopped:
                 timer = createTimer();
               case TimerState.Running:
-                // Change Stop to Start.
-                button_swap($btnStart, 'Stop', 'btn-success', 'btn-danger');
-                // Show subcontrols.
-                $panelSubcontrols.show();
-                // Hide options.
-                $panelOptions.hide();
                 break;
             }
           }
           switch (new_state) {
             case TimerState.Running:
-              // Change Resume to Pause.
-              button_swap($btnPause, 'Pause', 'btn-success', 'btn-secondary');
               timer.run();
               break;
             case TimerState.Paused:
-              // Change Pause to Resume.
-              button_swap($btnPause, 'Resume', 'btn-secondary', 'btn-success');
               timer.pause();
               break;
             case TimerState.Stopped:
             default:
-              // Change Start to Stop.
-              button_swap($btnStart, 'Start', 'btn-danger', 'btn-success');
-              // Hide subcontrols.
-              $panelSubcontrols.hide();
-              // Show options.
-              $panelOptions.show();
               timer.stop();
               timerClockComponent.elapsedTime = 0;
               timerClockComponent.duration = toMillisecs(
@@ -497,6 +435,7 @@
               break;
           }
           timerClockComponent.timerState = new_state;
+          timerControlsComponent.timerState = new_state;
         }
 
         // 'Private' functions
