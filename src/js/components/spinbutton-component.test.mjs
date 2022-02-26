@@ -60,3 +60,25 @@ it('should decrease value when user clicks the decrement button', () => {
   expect(callbacks.onValueChanged).toBeCalledTimes(1);
   expect(spinButton.value).toBe(0);
 });
+
+it('should clamp value to maximum if it exceeds', () => {
+  const spinButton = new SpinButtonComponent(5, 0, 10);
+  $(document.body).append(spinButton.rootElement);
+
+  spinButton.value = 15;
+  fireEvent.click(screen.getByRole('button', {name: '+'}));
+
+  expect(screen.getByDisplayValue('10')).toBeVisible();
+  expect(spinButton.value).toBe(10);
+});
+
+it('should clamp value to minimum if it is below', () => {
+  const spinButton = new SpinButtonComponent(5, 0, 10);
+  $(document.body).append(spinButton.rootElement);
+
+  spinButton.value = -5;
+  fireEvent.click(screen.getByRole('button', {name: '-'}));
+
+  expect(screen.getByDisplayValue('0')).toBeVisible();
+  expect(spinButton.value).toBe(0);
+});

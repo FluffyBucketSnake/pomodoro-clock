@@ -1,7 +1,15 @@
 import $ from 'jquery';
 
+function clamp(value, min, max) {
+  min != undefined && (value = Math.max(value, min));
+  max != undefined && (value = Math.min(value, max));
+  return value;
+}
+
 export class SpinButtonComponent {
   constructor(value, min, max, events = {}) {
+    this._min = min;
+    this._max = max;
     events && ({onValueChanged: this.onValueChanged} = events);
     ({rootElement: this._rootElement, inputBox: this._inputBox} =
       this._createDOM());
@@ -14,6 +22,7 @@ export class SpinButtonComponent {
 
   set value(value) {
     const oldValue = this._value;
+    value = clamp(value, this._min, this._max);
     this._value = value;
     this._inputBox.val(value);
     oldValue !== undefined && this.onValueChanged && this.onValueChanged(value);
