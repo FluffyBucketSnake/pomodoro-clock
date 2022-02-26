@@ -1,7 +1,8 @@
 import $ from 'jquery';
 
 export class SpinButtonComponent {
-  constructor(value, min, max) {
+  constructor(value, min, max, events = {}) {
+    events && ({onValueChanged: this.onValueChanged} = events);
     ({rootElement: this._rootElement, inputBox: this._inputBox} =
       this._createDOM());
     this.value = value;
@@ -12,8 +13,10 @@ export class SpinButtonComponent {
   }
 
   set value(value) {
+    const oldValue = this._value;
     this._value = value;
     this._inputBox.val(value);
+    oldValue !== undefined && this.onValueChanged && this.onValueChanged(value);
   }
 
   get rootElement() {
@@ -22,24 +25,42 @@ export class SpinButtonComponent {
 
   _createDOM() {
     const decreaseButton = $(
-      '<div class="input-group-prepend"><button class="btn btn-outline-secondary">-</button></div>'
+      '<button class="btn btn-outline-secondary">-</button>'
     );
+    decreaseButton.click(() => this._onDecreaseClick());
+
     const inputBox = $(
       '<input type="number" class="form-control text-center"/>'
     );
     inputBox.change(() => this._onInputBoxChanged());
-    const increaseButton = $(
-      '<div class="input-group-append"><button class="btn btn-outline-secondary">+</button></div>'
-    );
-    const rootElement = $('<div class="input-group"></div>');
-    rootElement.append(decreaseButton);
-    rootElement.append(inputBox);
-    rootElement.append(increaseButton);
 
-    return {rootElement, inputBox};
+    const increaseButton = $(
+      '<button class="btn btn-outline-secondary">+</button>'
+    );
+    increaseButton.click(() => this._onIncreaseClick());
+
+    const prependGroup = $('<div class="input-group-prepend"></div>');
+    prependGroup.append(decreaseButton);
+    const appendGroup = $('<div class="input-group-append"></div>');
+    appendGroup.append(increaseButton);
+
+    const rootElement = $('<div class="input-group"></div>');
+    rootElement.append(prependGroup);
+    rootElement.append(inputBox);
+    rootElement.append(appendGroup);
+
+    return {rootElement, decreaseButton, inputBox, increaseButton};
+  }
+
+  _onDecreaseClick() {
+    this.value--;
+  }
+
+  _onIncreaseClick() {
+    this.value++;
   }
 
   _onInputBoxChanged() {
-    this._value = parseFloat(this._inputBox.val());
+    this.value = parseFloat(this._inputBox.val());
   }
 }
