@@ -3,7 +3,7 @@ import {jest} from '@jest/globals';
 import {screen, fireEvent} from '@testing-library/dom';
 import $ from 'jquery';
 
-import {SpinButtonComponent} from './spinButton-component.mjs';
+import {SpinButtonComponent} from './spin-button-component.mjs';
 
 beforeEach(() => {
   $(document.body).empty();
