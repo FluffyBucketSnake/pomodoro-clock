@@ -166,71 +166,11 @@
               <div class="row justify-content-center">
                 <label for="text-durartion-work">Work:</label>
               </div>
-              <div class="row">
-                <div class="input-group mb-2">
-                  <div class="input-group-prepend">
-                    <button
-                      class="btn btn-outline-secondary"
-                      data-action="decrease"
-                      data-target="#txt-duration-work"
-                    >
-                      &lt;
-                    </button>
-                  </div>
-                  <input
-                    name="duration-work"
-                    id="txt-duration-work"
-                    type="number"
-                    step="1"
-                    min="0"
-                    max="60"
-                    class="form-control text-center"
-                  />
-                  <div class="input-group-append">
-                    <button
-                      class="btn btn-outline-secondary"
-                      data-action="increase"
-                      data-target="#txt-duration-work"
-                    >
-                      &gt;
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <div id="slot-work-time-input" class="row"></div>
               <div class="row justify-content-center">
                 <label for="txt-durartion-break">Break:</label>
               </div>
-              <div class="row">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <button
-                      class="btn btn-outline-secondary"
-                      data-action="decrease"
-                      data-target="#txt-duration-break"
-                    >
-                      &lt;
-                    </button>
-                  </div>
-                  <input
-                    name="duration-break"
-                    id="txt-duration-break"
-                    type="number"
-                    step="1"
-                    min="0"
-                    max="60"
-                    class="form-control text-center"
-                  />
-                  <div class="input-group-append">
-                    <button
-                      class="btn btn-outline-secondary"
-                      data-action="increase"
-                      data-target="#txt-duration-break"
-                    >
-                      &gt;
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <div id="slot-break-time-input" class="row"></div>
             </div>
           </div>
           <div class="modal-footer">
@@ -256,6 +196,7 @@
       import {Timer, TimerState} from './js/timer.mjs';
       import {TimerClockComponent} from './js/components/timer-clock-component.mjs';
       import {TimerControlsComponent} from './js/components/timer-controls-component.mjs';
+      import {SpinButtonComponent} from './js/components/spin-button-component.mjs';
 
       const PomodoroState = {
         Inactive: 'inactive',
@@ -361,6 +302,23 @@
         const $root = $('#root');
         $root.append(timerClockComponent.rootElement);
         $root.append(timerControlsComponent.rootElement);
+
+        const $slotWorkTimeInput = $('#slot-work-time-input');
+        const spinButtonWork = new SpinButtonComponent(
+          work_duration / 60,
+          0,
+          60
+        );
+        $slotWorkTimeInput.append(spinButtonWork.rootElement);
+
+        const $slotBreakTimeInput = $('#slot-break-time-input');
+        const breakButtonWork = new SpinButtonComponent(
+          break_duration / 60,
+          0,
+          60
+        );
+        $slotBreakTimeInput.append(breakButtonWork.rootElement);
+
         set_state(TimerState.Stopped);
         reset_options();
 
