@@ -30,6 +30,8 @@ Based on [this app idea](https://github.com/florinpop17/app-ideas/blob/master/Pr
 
 - [ ] User can play a sample of the alarm sound;
 
+- [ ] User can dismiss alarm;
+
 - [ ] User can switch between english and portuguese translations.
 
 ### Portuguese/Português
@@ -59,6 +61,8 @@ Baseado [nesta ideia de aplicativo](https://github.com/florinpop17/app-ideas/blo
 - [ ] Usuário pode definir um descanso longo a cada 4ª sessão de descanso;
 
 - [ ] Usuário pode testar o som de alarme que escolheu;
+
+- [ ] Usuário pode dispensar alarme;
 
 - [ ] Usuário pode alternar a linguagem entre inglês e português.
 
