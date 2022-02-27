@@ -9,15 +9,17 @@ beforeEach(() => {
   $(document.body).empty();
 });
 
-it('should show all options and configurations when shown', () => {
-  const alarmSounds = [
+const DefaultProps = {
+  alarmSounds: [
     {name: 'a', url: 'a'},
     {name: 'b', url: 'b'},
     {name: 'c', url: 'c'},
     {name: 'd', url: 'd'},
     {name: 'e', url: 'e'},
-  ];
-  const currentOptions = {
+  ],
+};
+
+const DefaultOptions = {
     alarm: {
       volume: 0.4,
       sound: 2,
@@ -27,7 +29,9 @@ it('should show all options and configurations when shown', () => {
       break: 5,
     },
   };
-  const modal = new PomodoroConfigModal({alarmSounds}, currentOptions);
+
+it('should show all options and configurations when shown', () => {
+  const modal = new PomodoroConfigModal(DefaultProps, DefaultOptions);
   $(document.body).append(modal.rootElement);
 
   modal.show();
@@ -42,7 +46,7 @@ it('should show all options and configurations when shown', () => {
   expect(inputSound).toBeVisible();
   expect(inputSound.value).toBe('2');
   expect(inputSound.options[inputSound.selectedIndex].text).toBe(
-    alarmSounds[inputSound.selectedIndex].name
+    ExampleAlarmSounds[inputSound.selectedIndex].name
   );
 
   expect(
@@ -57,29 +61,12 @@ it('should show all options and configurations when shown', () => {
 });
 
 it('should show all submitted alarm options', () => {
-  const alarmSounds = [
-    {name: 'a', url: 'a'},
-    {name: 'b', url: 'b'},
-    {name: 'c', url: 'c'},
-    {name: 'd', url: 'd'},
-    {name: 'e', url: 'e'},
-  ];
-  const currentOptions = {
-    alarm: {
-      volume: 0.4,
-      sound: 2,
-    },
-    sessionDuration: {
-      work: 25,
-      break: 5,
-    },
-  };
-  const modal = new PomodoroConfigModal({alarmSounds}, currentOptions);
+  const modal = new PomodoroConfigModal(DefaultProps, DefaultOptions);
   $(document.body).append(modal.rootElement);
 
   modal.show();
 
-  for (const [index, {name}] of alarmSounds.entries()) {
+  for (const [index, {name}] of ExampleAlarmSounds.entries()) {
     const option = screen.getByRole('option', {name});
     expect(option).toBeVisible();
     expect(option.value).toBe(String(index));
