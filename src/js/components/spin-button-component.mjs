@@ -7,12 +7,12 @@ function clamp(value, min, max) {
 }
 
 export class SpinButtonComponent {
-  constructor(value, min, max, events = {}) {
+  constructor(value, min, max, events = {}, options = {}) {
     this._min = min;
     this._max = max;
     events && ({onValueChanged: this.onValueChanged} = events);
     ({rootElement: this._rootElement, inputBox: this._inputBox} =
-      this._createDOM());
+      this._createDOM(options));
     this.value = value;
   }
 
@@ -32,7 +32,7 @@ export class SpinButtonComponent {
     return this._rootElement;
   }
 
-  _createDOM() {
+  _createDOM({id, name}) {
     const decreaseButton = $(
       '<button class="btn btn-outline-secondary">-</button>'
     );
@@ -41,6 +41,8 @@ export class SpinButtonComponent {
     const inputBox = $(
       '<input type="number" class="form-control text-center"/>'
     );
+    id && inputBox.attr('id', id);
+    name && inputBox.attr('name', name);
     inputBox.change(() => this._onInputBoxChanged());
 
     const increaseButton = $(
