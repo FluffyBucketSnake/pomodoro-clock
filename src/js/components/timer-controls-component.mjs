@@ -134,35 +134,4 @@ export class TimerControlsComponent {
       this._onPause && this._onPause();
     }
   }
-  /* 
-<section class="container">
-  <div id="panel-controls">
-    <div class="row mb-2">
-      <button id="btn-start" class="btn btn-success col-12">
-        Start
-      </button>
-    </div>
-    <div id="panel-subcontrols" class="row mb-2">
-      <button
-        id="btn-pause"
-        class="btn btn-secondary col-12 col-md-5 mr-auto mb-2"
-      >
-        Pause
-      </button>
-      <button id="btn-reset" class="btn btn-secondary col-12 col-md-5 mb-2">
-        Reset
-      </button>
-    </div>
-    <div id="panel-options" class="row mb-2">
-      <button
-        id="btn-options"
-        class="btn btn-secondary col-12"
-        data-toggle="modal"
-        data-target="#modal-options"
-      >
-        Options
-      </button>
-    </div>
-  </div>
-</section>; */
 }
