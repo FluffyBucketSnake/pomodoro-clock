@@ -45,6 +45,7 @@ function createModal(title, body, footer) {
 
 export class PomodoroConfigModal {
   constructor(props, value) {
+    this._alarmSounds = props.alarmSounds;
     ({
       rootElement: this._rootElement,
       inputVolume: this._inputVolume,
@@ -62,7 +63,7 @@ export class PomodoroConfigModal {
   set currentOptions(value) {
     this._currentOptions = value;
     this._inputVolume.val(value.alarm.volume * 100);
-    this._inputSound.val(value.alarm.sound);
+    this._inputSound.val(value.alarm.sound.id);
     this._inputWorkDuration.value = value.sessionDuration.work;
     this._inputBreakDuration.value = value.sessionDuration.break;
   }
@@ -128,14 +129,13 @@ export class PomodoroConfigModal {
         class="mx-0 w-100"
         min="0" 
         max="100"/>`).change(() => this._onInputVolumeChanged());
+    const optionsSound = sounds.map(
+      ({id, name}) => `<option value="${id}"}>${name}</option>`
+    );
     const inputSound = $(
       '<select name="sel-sound" id="sel-sound" class="custom-select"></select>'
     )
-      .append(
-        sounds.map(
-          ({name}, index) => `<option value="${index}"}>${name}</option>`
-        )
-      )
+      .append(optionsSound)
       .change(() => this._onInputSoundChanged());
 
     const rootElement = $('<section class="mb-5"></section>')
@@ -213,6 +213,8 @@ export class PomodoroConfigModal {
   }
 
   _onInputSoundChanged() {
-    this._currentOptions.alarm.sound = parseInt(this._inputSound.val());
+    this._currentOptions.alarm.sound = this._alarmSounds.find(
+      ({id}) => id === this._inputSound.val()
+    );
   }
 }

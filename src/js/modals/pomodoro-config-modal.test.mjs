@@ -11,18 +11,18 @@ beforeEach(() => {
 
 const DefaultProps = {
   alarmSounds: [
-    {name: 'a', url: 'a'},
-    {name: 'b', url: 'b'},
-    {name: 'c', url: 'c'},
-    {name: 'd', url: 'd'},
-    {name: 'e', url: 'e'},
+    {id: '0', name: 'a', url: 'a'},
+    {id: '1', name: 'b', url: 'b'},
+    {id: '2', name: 'c', url: 'c'},
+    {id: '3', name: 'd', url: 'd'},
+    {id: '4', name: 'e', url: 'e'},
   ],
 };
 
 const DefaultOptions = {
   alarm: {
     volume: 0.4,
-    sound: 2,
+    sound: {id: '2', name: 'c', url: 'c'},
   },
   sessionDuration: {
     work: 25,
@@ -46,7 +46,7 @@ it('should show all options and configurations when shown', () => {
   expect(inputSound).toBeVisible();
   expect(inputSound.value).toBe('2');
   expect(inputSound.options[inputSound.selectedIndex].text).toBe(
-    DefaultProps.alarmSounds[inputSound.selectedIndex].name
+    DefaultOptions.alarm.sound.name
   );
 
   expect(
@@ -77,7 +77,7 @@ it('should call onSave when user clicks on Save button, returning the current op
   const desiredOptions = {
     alarm: {
       volume: 1,
-      sound: 0,
+      sound: {id: '0', name: 'a', url: 'a'},
     },
     sessionDuration: {
       work: 30,
@@ -96,7 +96,7 @@ it('should call onSave when user clicks on Save button, returning the current op
     target: {value: desiredOptions.alarm.volume * 100},
   });
   fireEvent.change(screen.getByLabelText('Sound:'), {
-    target: {value: desiredOptions.alarm.sound},
+    target: {value: desiredOptions.alarm.sound.id},
   });
   fireEvent.change(screen.getByLabelText('Work:'), {
     target: {value: desiredOptions.sessionDuration.work},
@@ -115,7 +115,7 @@ it('should call onReset when user clicks on the Reset button, resetting the opti
   const desiredOptions = {
     alarm: {
       volume: 1,
-      sound: 0,
+      sound: {id: '0', name: 'a', url: 'a'},
     },
     sessionDuration: {
       work: 30,
@@ -134,7 +134,7 @@ it('should call onReset when user clicks on the Reset button, resetting the opti
     target: {value: desiredOptions.alarm.volume * 100},
   });
   fireEvent.change(screen.getByLabelText('Sound:'), {
-    target: {value: desiredOptions.alarm.sound},
+    target: {value: desiredOptions.alarm.sound.id},
   });
   fireEvent.change(screen.getByLabelText('Work:'), {
     target: {value: desiredOptions.sessionDuration.work},
