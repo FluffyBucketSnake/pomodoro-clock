@@ -2,6 +2,14 @@ import $ from 'jquery';
 
 import {TimerState} from '../timer.mjs';
 
+function createButton(text, onClick, {type, isHalf} = {}) {
+  const button = $(`<button class="btn col-12">${text}</button>`);
+  onClick && button.click(onClick);
+  type && button.addClass(`btn-${type}`);
+  isHalf && button.addClass('col-md-5');
+  return button;
+}
+
 export class TimerControlsComponent {
   constructor(events) {
     events &&
@@ -66,23 +74,25 @@ export class TimerControlsComponent {
   }
 
   _createDOM() {
-    const buttonStartStop = $('<button class="btn col-12"></button>');
-    (this._onStart || this._onStop) &&
-      buttonStartStop.on('click', () => this._onStartStop());
-    const buttonOptions = $(
-      '<button class="btn btn-secondary col-12">Options</button>'
+    const buttonStartStop = createButton(
+      '',
+      (this._onStart || this._onStop) && (() => this._onStartStop())
     );
-    this._onShowOptions &&
-      buttonOptions.on('click', () => this._onShowOptions());
-    const buttonPauseResume = $(
-      '<button class="btn btn-secondary col-12 col-md-5"></button>'
+    const buttonOptions = createButton(
+      'Options',
+      this._onShowOptions && (() => this._onShowOptions()),
+      {type: 'secondary'}
     );
-    (this._onPause || this._onStop) &&
-      buttonPauseResume.on('click', () => this._onPauseResume());
-    const buttonReset = $(
-      '<button class="btn btn-secondary col-12 col-md-5">Reset</button>'
+    const buttonPauseResume = createButton(
+      '',
+      (this._onPause || this._onStop) && (() => this._onPauseResume()),
+      {isHalf: true}
     );
-    this._onReset && buttonReset.on('click', () => this._onReset());
+    const buttonReset = createButton(
+      'Reset',
+      this._onReset && (() => this._onReset()),
+      {type: 'secondary', isHalf: true}
+    );
 
     const rowMain = $('<div class="row mb-2"></div>').append(buttonStartStop);
     const rowSecondaryStopped = $('<div class="row mb-2"></div>').append(
