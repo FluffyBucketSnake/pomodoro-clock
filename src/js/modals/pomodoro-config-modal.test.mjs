@@ -27,3 +27,17 @@ it('should have a alarm session, with sound and volume options and time session 
   expect(screen.getByLabelText('Work:')).toBeVisible();
   expect(screen.getByLabelText('Break:')).toBeVisible();
 });
+
+it('should show all submitted alarm options', () => {
+  const alarmSounds = ['a', 'b', 'c', 'd'];
+  const modal = new PomodoroConfigModal({alarmSounds});
+  $(document.body).append(modal.rootElement);
+
+  modal.show();
+
+  for (const [index, name] of alarmSounds.entries()) {
+    const option = screen.getByRole('option', {name});
+    expect(option).toBeVisible();
+    expect(option.value).toBe(String(index));
+  }
+});

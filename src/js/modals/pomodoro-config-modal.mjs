@@ -44,8 +44,8 @@ function createModal(title, body, footer) {
 }
 
 export class PomodoroConfigModal {
-  constructor() {
-    ({rootElement: this._rootElement} = this._createDOM());
+  constructor(options = {}) {
+    ({rootElement: this._rootElement} = this._createDOM(options));
   }
 
   get rootElement() {
@@ -56,16 +56,16 @@ export class PomodoroConfigModal {
     this._rootElement.modal();
   }
 
-  _createDOM() {
-    const body = this._createBodyDOM();
+  _createDOM(options) {
+    const body = this._createBodyDOM(options);
     const footer = this._createFooterDOM();
     const rootElement = createModal('Options', body, footer);
 
     return {rootElement};
   }
 
-  _createBodyDOM() {
-    const alarmSection = this._createAlarmSectionDOM();
+  _createBodyDOM({alarmSounds}) {
+    const alarmSection = this._createAlarmSectionDOM(alarmSounds);
     const sessionDurationSection = this._createSessionDurationSectionDOM();
     const container = $('<div class="container-fluid"></div>').append(
       alarmSection,
@@ -74,50 +74,28 @@ export class PomodoroConfigModal {
     return container;
   }
 
-  _createAlarmSectionDOM() {
-    return $(`
-      <section>
-        <div class="row justify-content-center mb-3">
-              <h3>Alarm:</h3>
-        </div>
-        <div class="row justify-content-center">
-            <label for="range-volume">Volume:</label>
-        </div>
-        <div class="row mb-1">
-            <div class="input-group">
-            <input
-                type="range"
-                name="volume"
-                id="range-volume"
-                class="mx-0 w-100"
-                min="0"
-                value="100"
-                max="100"
-            />
-            </div>
-        </div>
-        <div class="row justify-content-center">
-            <label for="sel-sound">Sound:</label>
-        </div>
-        <div class="row mb-5">
-            <div class="input-group">
-            <select name="sel-sound" id="sel-sound" class="custom-select">
-                <option value="default">Default</option>
-                <option value="geese">Geese</option>
-                <option value="hugebell">Huge bell</option>
-                <option value="police">Police siren</option>
-                <option value="railroad">Railroad Crossing</option>
-                <option value="rooster">Rooster</option>
-                <option value="warningsiren">Warning siren</option>
-                <option value="whistling">Whistling</option>
-            </select>
-            <div class="input-group-append">
-                <a class="btn btn-outline-secondary">Listen</a>
-            </div>
-            </div>
-        </div>
-      <section>
-    `);
+  _createAlarmSectionDOM(alarmSounds) {
+    return $('<section class="mb-5"></section>')
+      .append(createTitleRow('<h3>Alarm:</h3>'))
+      .append(createRow('<label for="range-volume">Volume:</label>'))
+      .append(
+        createRow(
+          '<input type="range" name="volume" id="range-volume" class="mx-0 w-100" min="0" max="100"/>'
+        )
+      )
+      .append(createRow('<label for="sel-sound">Sound:</label>'))
+      .append(
+        createRow(
+          $(
+            '<select name="sel-sound" id="sel-sound" class="custom-select"></select>'
+          ).append(
+            alarmSounds &&
+              alarmSounds.map(
+                (value, index) => `<option value="${index}">${value}</option>`
+              )
+          )
+        )
+      );
   }
 
   _createSessionDurationSectionDOM() {
