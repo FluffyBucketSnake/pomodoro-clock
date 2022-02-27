@@ -6,6 +6,22 @@ function clamp(value, min, max) {
   return value;
 }
 
+function createInputBox(type, id, onChanged) {
+  const inputBox = $(
+    `<input type="${type}" class="form-control text-center"/>`
+  );
+  id && inputBox.attr('id', id);
+  onChanged && inputBox.change(onChanged);
+  return inputBox;
+}
+
+const createGroupButton = (type, text, onClick) =>
+  $(`<div class="input-group-${type}"></div>`).append(
+    $(`<button class="btn btn-outline-secondary">${text}</button>`).click(
+      onClick
+    )
+  );
+
 export class SpinButtonComponent {
   constructor(value, min, max, events = {}, options = {}) {
     this._min = min;
@@ -32,35 +48,16 @@ export class SpinButtonComponent {
     return this._rootElement;
   }
 
-  _createDOM({id, name}) {
-    const decreaseButton = $(
-      '<button class="btn btn-outline-secondary">-</button>'
+  _createDOM({id}) {
+    const inputBox = createInputBox('number', id, () =>
+      this._onInputBoxChanged()
     );
-    decreaseButton.click(() => this._onDecreaseClick());
-
-    const inputBox = $(
-      '<input type="number" class="form-control text-center"/>'
+    const rootElement = $('<div class="input-group"></div>').append(
+      createGroupButton('prepend', '-', () => this._onDecreaseClick()),
+      inputBox,
+      createGroupButton('append', '+', () => this._onIncreaseClick())
     );
-    id && inputBox.attr('id', id);
-    name && inputBox.attr('name', name);
-    inputBox.change(() => this._onInputBoxChanged());
-
-    const increaseButton = $(
-      '<button class="btn btn-outline-secondary">+</button>'
-    );
-    increaseButton.click(() => this._onIncreaseClick());
-
-    const prependGroup = $('<div class="input-group-prepend"></div>');
-    prependGroup.append(decreaseButton);
-    const appendGroup = $('<div class="input-group-append"></div>');
-    appendGroup.append(increaseButton);
-
-    const rootElement = $('<div class="input-group"></div>');
-    rootElement.append(prependGroup);
-    rootElement.append(inputBox);
-    rootElement.append(appendGroup);
-
-    return {rootElement, decreaseButton, inputBox, increaseButton};
+    return {rootElement, inputBox};
   }
 
   _onDecreaseClick() {
