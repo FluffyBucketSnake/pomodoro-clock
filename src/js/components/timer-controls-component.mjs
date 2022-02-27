@@ -80,22 +80,19 @@ export class TimerControlsComponent {
     (this._onPause || this._onStop) &&
       buttonPauseResume.on('click', () => this._onPauseResume());
     const buttonReset = $(
-      '<button class="btn btn-secondary col-12 col-md-5 mb-2">Reset</button>'
+      '<button class="btn btn-secondary col-12 col-md-5">Reset</button>'
     );
     this._onReset && buttonReset.on('click', () => this._onReset());
 
-    const rowMain = $('<div class="row mb-2"></div>');
-    rowMain.append(buttonStartStop);
-    const rowSecondaryStopped = $('<div class="row mb-2"></div>');
-    rowSecondaryStopped.append(buttonOptions);
+    const rowMain = $('<div class="row mb-2"></div>').append(buttonStartStop);
+    const rowSecondaryStopped = $('<div class="row mb-2"></div>').append(
+      buttonOptions
+    );
     const rowSecondaryStarted = $(
       '<div class="row mb-2 justify-content-between"></div>'
-    );
-    rowSecondaryStarted.append(buttonPauseResume);
-    rowSecondaryStarted.append(buttonReset);
+    ).append(buttonPauseResume, buttonReset);
 
-    const rootElement = $('<div></div>');
-    rootElement.append(rowMain);
+    const rootElement = $('<div></div>').append(rowMain);
 
     return {
       rootElement,
