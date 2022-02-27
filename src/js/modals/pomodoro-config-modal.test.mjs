@@ -9,8 +9,19 @@ beforeEach(() => {
   $(document.body).empty();
 });
 
-it('should have a alarm session, with sound and volume options and time session with duration options when shown.', () => {
-  const modal = new PomodoroConfigModal();
+it('should show all options and configurations when shown', () => {
+  const alarmSounds = ['a', 'b', 'c', 'd', 'e'];
+  const currentOptions = {
+    alarm: {
+      volume: 0.4,
+      sound: 2,
+    },
+    sessionDuration: {
+      work: 25,
+      break: 5,
+    },
+  };
+  const modal = new PomodoroConfigModal({alarmSounds}, currentOptions);
   $(document.body).append(modal.rootElement);
 
   modal.show();
@@ -18,14 +29,37 @@ it('should have a alarm session, with sound and volume options and time session 
   expect(screen.getByRole('heading', {name: 'Options'})).toBeVisible();
 
   expect(screen.getByRole('heading', {name: 'Alarm:'})).toBeVisible();
-  expect(screen.getByLabelText('Volume:')).toBeVisible();
-  expect(screen.getByLabelText('Sound:')).toBeVisible();
+  const inputRange = screen.getByLabelText('Volume:');
+  expect(inputRange).toBeVisible();
+  expect(inputRange.value).toBe('40');
+  const inputSound = screen.getByLabelText('Sound:');
+  expect(inputSound).toBeVisible();
+  expect(inputSound.value).toBe('2');
+  expect(inputSound.options[inputSound.selectedIndex].text).toBe('c');
 
   expect(
     screen.getByRole('heading', {name: 'Sessions duration (in minutes) :'})
   ).toBeVisible();
-  expect(screen.getByLabelText('Work:')).toBeVisible();
-  expect(screen.getByLabelText('Break:')).toBeVisible();
+  const inputWorkDuration = screen.getByLabelText('Work:');
+  expect(inputWorkDuration).toBeVisible();
+  expect(inputWorkDuration.value).toBe('25');
+  const inputBreakDuration = screen.getByLabelText('Break:');
+  expect(inputBreakDuration).toBeVisible();
+  expect(inputBreakDuration.value).toBe('5');
+});
+
+it('should show all submitted alarm options', () => {
+  const alarmSounds = ['a', 'b', 'c', 'd'];
+  const modal = new PomodoroConfigModal({alarmSounds});
+  $(document.body).append(modal.rootElement);
+
+  modal.show();
+
+  for (const [index, name] of alarmSounds.entries()) {
+    const option = screen.getByRole('option', {name});
+    expect(option).toBeVisible();
+    expect(option.value).toBe(String(index));
+  }
 });
 
 it('should show all submitted alarm options', () => {

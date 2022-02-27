@@ -44,8 +44,8 @@ function createModal(title, body, footer) {
 }
 
 export class PomodoroConfigModal {
-  constructor(options = {}) {
-    ({rootElement: this._rootElement} = this._createDOM(options));
+  constructor(props, value) {
+    ({rootElement: this._rootElement} = this._createDOM(props, value));
   }
 
   get rootElement() {
@@ -56,17 +56,25 @@ export class PomodoroConfigModal {
     this._rootElement.modal();
   }
 
-  _createDOM(options) {
-    const body = this._createBodyDOM(options);
+  _createDOM(props, value) {
+    const body = this._createBodyDOM(props, value);
     const footer = this._createFooterDOM();
     const rootElement = createModal('Options', body, footer);
 
     return {rootElement};
   }
 
-  _createBodyDOM({alarmSounds}) {
-    const alarmSection = this._createAlarmSectionDOM(alarmSounds);
-    const sessionDurationSection = this._createSessionDurationSectionDOM();
+  _createBodyDOM(
+    {alarmSounds},
+    {alarm: currentAlarmOptions, sessionDuration: currentSessionDuration}
+  ) {
+    const alarmSection = this._createAlarmSectionDOM(
+      alarmSounds,
+      currentAlarmOptions
+    );
+    const sessionDurationSection = this._createSessionDurationSectionDOM(
+      currentSessionDuration
+    );
     const container = $('<div class="container-fluid"></div>').append(
       alarmSection,
       sessionDurationSection
@@ -74,13 +82,20 @@ export class PomodoroConfigModal {
     return container;
   }
 
-  _createAlarmSectionDOM(alarmSounds) {
+  _createAlarmSectionDOM(sounds, {sound: currentSound, volume: currentVolume}) {
     return $('<section class="mb-5"></section>')
       .append(createTitleRow('<h3>Alarm:</h3>'))
       .append(createRow('<label for="range-volume">Volume:</label>'))
       .append(
         createRow(
-          '<input type="range" name="volume" id="range-volume" class="mx-0 w-100" min="0" max="100"/>'
+          `<input 
+            type="range" 
+            name="volume" 
+            id="range-volume" 
+            class="mx-0 w-100"
+            value="${currentVolume * 100}"
+            min="0" 
+            max="100"/>`
         )
       )
       .append(createRow('<label for="sel-sound">Sound:</label>'))
@@ -89,25 +104,43 @@ export class PomodoroConfigModal {
           $(
             '<select name="sel-sound" id="sel-sound" class="custom-select"></select>'
           ).append(
-            alarmSounds &&
-              alarmSounds.map(
-                (value, index) => `<option value="${index}">${value}</option>`
+            sounds &&
+              sounds.map(
+                (value, index) =>
+                  `<option value="${index}"${
+                    index === currentSound && ' selected'
+                  }>${value}</option>`
               )
           )
         )
       );
   }
 
-  _createSessionDurationSectionDOM() {
+  _createSessionDurationSectionDOM({
+    work: currentWorkDuration,
+    break: currentBreakDuration,
+  }) {
     const txtWorkDurationId = 'txt-work-duration';
-    const txtBreakDurationId = 'txt-work-duration';
+    const txtBreakDurationId = 'txt-break-duration';
 
-    const txtWorkDuration = new SpinButtonComponent(5, 0, 60, undefined, {
-      id: txtWorkDurationId,
-    });
-    const txtBreakDuration = new SpinButtonComponent(5, 0, 60, undefined, {
-      id: txtBreakDurationId,
-    });
+    const txtWorkDuration = new SpinButtonComponent(
+      currentWorkDuration,
+      0,
+      60,
+      undefined,
+      {
+        id: txtWorkDurationId,
+      }
+    );
+    const txtBreakDuration = new SpinButtonComponent(
+      currentBreakDuration,
+      0,
+      60,
+      undefined,
+      {
+        id: txtBreakDurationId,
+      }
+    );
 
     const sectionContainer = $('<section></section>').append(
       createTitleRow(
