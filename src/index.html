@@ -238,11 +238,7 @@
               break;
             case TimerState.Stopped:
             default:
-              timer.stop();
-              timerClockComponent.elapsedTime = 0;
-              timerClockComponent.duration = toMillisecs(
-                get_session_duration()
-              );
+              set_session(0);
               break;
           }
           timerClockComponent.timerState = new_state;
