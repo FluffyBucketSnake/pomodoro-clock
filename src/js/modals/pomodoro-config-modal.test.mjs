@@ -20,15 +20,15 @@ const DefaultProps = {
 };
 
 const DefaultOptions = {
-    alarm: {
-      volume: 0.4,
-      sound: 2,
-    },
-    sessionDuration: {
-      work: 25,
-      break: 5,
-    },
-  };
+  alarm: {
+    volume: 0.4,
+    sound: 2,
+  },
+  sessionDuration: {
+    work: 25,
+    break: 5,
+  },
+};
 
 it('should show all options and configurations when shown', () => {
   const modal = new PomodoroConfigModal(DefaultProps, DefaultOptions);
@@ -46,7 +46,7 @@ it('should show all options and configurations when shown', () => {
   expect(inputSound).toBeVisible();
   expect(inputSound.value).toBe('2');
   expect(inputSound.options[inputSound.selectedIndex].text).toBe(
-    ExampleAlarmSounds[inputSound.selectedIndex].name
+    DefaultProps.alarmSounds[inputSound.selectedIndex].name
   );
 
   expect(
@@ -66,7 +66,7 @@ it('should show all submitted alarm options', () => {
 
   modal.show();
 
-  for (const [index, {name}] of ExampleAlarmSounds.entries()) {
+  for (const [index, {name}] of DefaultProps.alarmSounds.entries()) {
     const option = screen.getByRole('option', {name});
     expect(option).toBeVisible();
     expect(option.value).toBe(String(index));
