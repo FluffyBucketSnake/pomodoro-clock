@@ -57,27 +57,29 @@ it('should show all options and configurations when shown', () => {
 });
 
 it('should show all submitted alarm options', () => {
-  const alarmSounds = ['a', 'b', 'c', 'd'];
-  const modal = new PomodoroConfigModal({alarmSounds});
+  const alarmSounds = [
+    {name: 'a', url: 'a'},
+    {name: 'b', url: 'b'},
+    {name: 'c', url: 'c'},
+    {name: 'd', url: 'd'},
+    {name: 'e', url: 'e'},
+  ];
+  const currentOptions = {
+    alarm: {
+      volume: 0.4,
+      sound: 2,
+    },
+    sessionDuration: {
+      work: 25,
+      break: 5,
+    },
+  };
+  const modal = new PomodoroConfigModal({alarmSounds}, currentOptions);
   $(document.body).append(modal.rootElement);
 
   modal.show();
 
-  for (const [index, name] of alarmSounds.entries()) {
-    const option = screen.getByRole('option', {name});
-    expect(option).toBeVisible();
-    expect(option.value).toBe(String(index));
-  }
-});
-
-it('should show all submitted alarm options', () => {
-  const alarmSounds = ['a', 'b', 'c', 'd'];
-  const modal = new PomodoroConfigModal({alarmSounds});
-  $(document.body).append(modal.rootElement);
-
-  modal.show();
-
-  for (const [index, name] of alarmSounds.entries()) {
+  for (const [index, {name}] of alarmSounds.entries()) {
     const option = screen.getByRole('option', {name});
     expect(option).toBeVisible();
     expect(option.value).toBe(String(index));

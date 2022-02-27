@@ -120,15 +120,26 @@
         Break: 'break',
       };
 
-      const AlarmSounds = {
-        default: 'audio/default.wav',
-        geese: 'audio/geese.mp3',
-        hugebell: 'audio/hugebell.wav',
-        police: 'audio/police.wav',
-        railroad: 'audio/railroad.wav',
-        rooster: 'audio/rooster.wav',
-        warningsiren: 'audio/warningsiren.wav',
-        whistling: 'audio/whistling.wav',
+      const AlarmSounds = [
+        {name: 'Default', url: 'audio/default.wav'},
+        {name: 'Geese', url: 'audio/geese.mp3'},
+        {name: 'Huge bell', url: 'audio/hugebell.wav'},
+        {name: 'Police siren', url: 'audio/police.wav'},
+        {name: 'Railroad crossing bell', url: 'audio/railroad.wav'},
+        {name: 'Rooster', url: 'audio/rooster.wav'},
+        {name: 'Warning siren', url: 'audio/warningsiren.wav'},
+        {name: 'Whistling', url: 'audio/whistling.wav'},
+      ];
+
+      const DefaultOptions = {
+        alarm: {
+          volume: 0.4,
+          sound: 0,
+        },
+        sessionDuration: {
+          work: 25,
+          break: 5,
+        },
       };
 
       $().ready(() => {
@@ -142,7 +153,10 @@
         const timerClockComponent = new TimerClockComponent();
 
         // Configuration modal
-        const configModal = new PomodoroConfigModal();
+        const configModal = new PomodoroConfigModal(
+          {alarmSounds: AlarmSounds},
+          DefaultOptions
+        );
 
         // Timer controls.
         const timerControlsCallbacks = {
