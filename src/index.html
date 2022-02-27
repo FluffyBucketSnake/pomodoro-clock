@@ -161,9 +161,10 @@
         const $audioAlarm = $('#audio-alarm');
 
         // Initial state.
-        const $root = $('#root');
-        $root.append(timerClockComponent.rootElement);
-        $root.append(timerControlsComponent.rootElement);
+        $('#root').append(
+          timerClockComponent.rootElement,
+          timerControlsComponent.rootElement
+        );
         $('#body').append(configModal.rootElement);
 
         set_state(TimerState.Stopped);
