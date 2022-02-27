@@ -82,7 +82,7 @@ export class TimerClockComponent {
   }
 
   _updateStateText() {
-    this._spanState.text(getStateText(this._timerState));
+    this._spanState.text(getStateText(this._timerState, this._sessionType));
   }
 
   _updateGradient() {
