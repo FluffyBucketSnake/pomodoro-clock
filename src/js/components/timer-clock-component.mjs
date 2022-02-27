@@ -61,13 +61,14 @@ export class TimerClockComponent {
     const spanState = createEmptySpan('pc-tc-state');
     const spanSession = createEmptySpan('pc-tc-session');
 
-    const timerOverlay = createEmptyDiv('pc-tc-overlay');
-    timerOverlay.append(spanTime);
-    timerOverlay.append(spanState);
-    timerOverlay.append(spanSession);
+    const timerOverlay = createEmptyDiv('pc-tc-overlay').append(
+      spanTime,
+      spanState,
+      spanSession
+    );
 
-    const rootElement = createEmptyDiv('pc-tc mx-auto mb-5');
-    rootElement.append(timerOverlay);
+    const rootElement =
+      createEmptyDiv('pc-tc mx-auto mb-5').append(timerOverlay);
 
     return {rootElement, spanTime, spanState, spanSession};
   }
