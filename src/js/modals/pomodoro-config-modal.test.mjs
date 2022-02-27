@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import {jest} from '@jest/globals';
-import {screen} from '@testing-library/dom';
+import {fireEvent, screen} from '@testing-library/dom';
 import $ from 'jquery';
 
 import {PomodoroConfigModal} from './pomodoro-config-modal.mjs';
@@ -71,4 +71,42 @@ it('should show all submitted alarm options', () => {
     expect(option).toBeVisible();
     expect(option.value).toBe(String(index));
   }
+});
+
+it('should call onSave when user clicks on Save button, returning the current options', () => {
+  const desiredOptions = {
+    alarm: {
+      volume: 1,
+      sound: 0,
+    },
+    sessionDuration: {
+      work: 30,
+      break: 1,
+    },
+  };
+  const onSave = jest.fn((value) => value);
+  const modal = new PomodoroConfigModal(
+    {onSave, ...DefaultProps},
+    DefaultOptions
+  );
+  $(document.body).append(modal.rootElement);
+  modal.show();
+
+  fireEvent.change(screen.getByLabelText('Volume:'), {
+    target: {value: desiredOptions.alarm.volume * 100},
+  });
+  fireEvent.change(screen.getByLabelText('Sound:'), {
+    target: {value: desiredOptions.alarm.sound},
+  });
+  fireEvent.change(screen.getByLabelText('Work:'), {
+    target: {value: desiredOptions.sessionDuration.work},
+  });
+  fireEvent.change(screen.getByLabelText('Break:'), {
+    target: {value: desiredOptions.sessionDuration.break},
+  });
+  fireEvent.click(screen.getByRole('button', {name: 'Save'}));
+
+  expect(onSave).toBeCalled();
+  expect(onSave).toReturnWith(modal.currentOptions);
+  expect(modal.currentOptions).toStrictEqual(desiredOptions);
 });

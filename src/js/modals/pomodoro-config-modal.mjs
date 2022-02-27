@@ -45,125 +45,173 @@ function createModal(title, body, footer) {
 
 export class PomodoroConfigModal {
   constructor(props, value) {
-    ({rootElement: this._rootElement} = this._createDOM(props, value));
+    ({
+      rootElement: this._rootElement,
+      inputVolume: this._inputVolume,
+      inputSound: this._inputSound,
+      inputWorkDuration: this._inputWorkDuration,
+      inputBreakDuration: this._inputBreakDuration,
+    } = this._createDOM(props, value));
+    this.currentOptions = value;
   }
 
   get rootElement() {
     return this._rootElement;
   }
 
+  set currentOptions(value) {
+    this._currentOptions = value;
+    this._inputVolume.val(value.alarm.volume * 100);
+    this._inputSound.val(value.alarm.sound);
+    this._inputWorkDuration.value = value.sessionDuration.work;
+    this._inputBreakDuration.value = value.sessionDuration.break;
+  }
+
+  get currentOptions() {
+    return this._currentOptions;
+  }
+
   show() {
     this._rootElement.modal();
   }
 
-  _createDOM(props, value) {
-    const body = this._createBodyDOM(props, value);
-    const footer = this._createFooterDOM();
+  _createDOM(props) {
+    const {
+      rootElement: body,
+      inputVolume,
+      inputSound,
+      inputWorkDuration,
+      inputBreakDuration,
+    } = this._createBodyDOM(props);
+    const footer = this._createFooterDOM(props);
     const rootElement = createModal('Options', body, footer);
 
-    return {rootElement};
+    return {
+      rootElement,
+      inputVolume,
+      inputSound,
+      inputWorkDuration,
+      inputBreakDuration,
+    };
   }
 
-  _createBodyDOM(
-    {alarmSounds},
-    {alarm: currentAlarmOptions, sessionDuration: currentSessionDuration}
-  ) {
-    const alarmSection = this._createAlarmSectionDOM(
-      alarmSounds,
-      currentAlarmOptions
-    );
-    const sessionDurationSection = this._createSessionDurationSectionDOM(
-      currentSessionDuration
-    );
-    const container = $('<div class="container-fluid"></div>').append(
+  _createBodyDOM({alarmSounds}) {
+    const {
+      rootElement: alarmSection,
+      inputVolume,
+      inputSound,
+    } = this._createAlarmSectionDOM(alarmSounds);
+    const {
+      rootElement: sessionDurationSection,
+      inputWorkDuration,
+      inputBreakDuration,
+    } = this._createSessionDurationSectionDOM();
+    const rootElement = $('<div class="container-fluid"></div>').append(
       alarmSection,
       sessionDurationSection
     );
-    return container;
+    return {
+      rootElement,
+      inputVolume,
+      inputSound,
+      inputWorkDuration,
+      inputBreakDuration,
+    };
   }
 
-  _createAlarmSectionDOM(sounds, {sound: currentSound, volume: currentVolume}) {
-    return $('<section class="mb-5"></section>')
-      .append(createTitleRow('<h3>Alarm:</h3>'))
-      .append(createRow('<label for="range-volume">Volume:</label>'))
+  _createAlarmSectionDOM(sounds) {
+    const inputVolume = $(`
+      <input 
+        type="range" 
+        name="volume" 
+        id="range-volume" 
+        class="mx-0 w-100"
+        min="0" 
+        max="100"/>`).change(() => this._onInputVolumeChanged());
+    const inputSound = $(
+      '<select name="sel-sound" id="sel-sound" class="custom-select"></select>'
+    )
       .append(
-        createRow(
-          `<input 
-            type="range" 
-            name="volume" 
-            id="range-volume" 
-            class="mx-0 w-100"
-            value="${currentVolume * 100}"
-            min="0" 
-            max="100"/>`
+        sounds.map(
+          ({name}, index) => `<option value="${index}"}>${name}</option>`
         )
       )
+      .change(() => this._onInputSoundChanged());
+
+    const rootElement = $('<section class="mb-5"></section>')
+      .append(createTitleRow('<h3>Alarm:</h3>'))
+      .append(createRow('<label for="range-volume">Volume:</label>'))
+      .append(createRow(inputVolume))
       .append(createRow('<label for="sel-sound">Sound:</label>'))
-      .append(
-        createRow(
-          $(
-            '<select name="sel-sound" id="sel-sound" class="custom-select"></select>'
-          ).append(
-            sounds &&
-              sounds.map(
-                ({name}, index) =>
-                  `<option value="${index}"${
-                    index === currentSound && ' selected'
-                  }>${name}</option>`
-              )
-          )
-        )
-      );
+      .append(createRow(inputSound));
+    return {rootElement, inputVolume, inputSound};
   }
 
-  _createSessionDurationSectionDOM({
-    work: currentWorkDuration,
-    break: currentBreakDuration,
-  }) {
-    const txtWorkDurationId = 'txt-work-duration';
-    const txtBreakDurationId = 'txt-break-duration';
+  _createSessionDurationSectionDOM() {
+    const idInputWorkDuration = 'input-work-duration';
+    const idInputBreakDuration = 'input-break-duration';
 
-    const txtWorkDuration = new SpinButtonComponent(
-      currentWorkDuration,
+    const inputWorkDuration = new SpinButtonComponent(
+      null,
       0,
       60,
-      undefined,
       {
-        id: txtWorkDurationId,
+        onValueChanged: (value) =>
+          (this._currentOptions.sessionDuration.work = value),
+      },
+      {
+        id: idInputWorkDuration,
       }
     );
-    const txtBreakDuration = new SpinButtonComponent(
-      currentBreakDuration,
+    const inputBreakDuration = new SpinButtonComponent(
+      null,
       0,
       60,
-      undefined,
       {
-        id: txtBreakDurationId,
+        onValueChanged: (value) =>
+          (this._currentOptions.sessionDuration.break = value),
+      },
+      {
+        id: idInputBreakDuration,
       }
     );
 
-    const sectionContainer = $('<section></section>').append(
+    const rootElement = $('<section></section>').append(
       createTitleRow(
         $(
           '<h3>Sessions duration<span class="text-muted">(in minutes)</span>:</h3>'
         )
       ),
-      createRow($(`<label for="${txtWorkDurationId}">Work:</label>`)),
-      createRow(txtWorkDuration.rootElement),
-      createRow($(`<label for="${txtBreakDurationId}">Break:</label>`)),
-      createRow(txtBreakDuration.rootElement)
+      createRow($(`<label for="${idInputWorkDuration}">Work:</label>`)),
+      createRow(inputWorkDuration.rootElement),
+      createRow($(`<label for="${idInputBreakDuration}">Break:</label>`)),
+      createRow(inputBreakDuration.rootElement)
     );
-    return sectionContainer;
+    return {rootElement, inputWorkDuration, inputBreakDuration};
   }
 
-  _createFooterDOM() {
-    return $(`
+  _createFooterDOM({onSave}) {
+    const buttonReset = $(`
       <button id="btn-reset-options" class="btn btn-secondary">
       Reset
       </button>
+    `);
+    const buttonSave = $(`
       <button id="btn-save" class="btn btn-success" data-dismiss="modal">
       Save
       </button>
     `);
+    onSave && buttonSave.click(() => onSave(this._currentOptions));
+
+    return [buttonReset, buttonSave];
+  }
+
+  _onInputVolumeChanged() {
+    this._currentOptions.alarm.volume =
+      parseFloat(this._inputVolume.val()) / 100;
+  }
+
+  _onInputSoundChanged() {
+    this._currentOptions.alarm.sound = parseInt(this._inputSound.val());
   }
 }
