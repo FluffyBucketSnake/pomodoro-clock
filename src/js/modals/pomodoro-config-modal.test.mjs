@@ -10,7 +10,13 @@ beforeEach(() => {
 });
 
 it('should show all options and configurations when shown', () => {
-  const alarmSounds = ['a', 'b', 'c', 'd', 'e'];
+  const alarmSounds = [
+    {name: 'a', url: 'a'},
+    {name: 'b', url: 'b'},
+    {name: 'c', url: 'c'},
+    {name: 'd', url: 'd'},
+    {name: 'e', url: 'e'},
+  ];
   const currentOptions = {
     alarm: {
       volume: 0.4,
@@ -35,7 +41,9 @@ it('should show all options and configurations when shown', () => {
   const inputSound = screen.getByLabelText('Sound:');
   expect(inputSound).toBeVisible();
   expect(inputSound.value).toBe('2');
-  expect(inputSound.options[inputSound.selectedIndex].text).toBe('c');
+  expect(inputSound.options[inputSound.selectedIndex].text).toBe(
+    alarmSounds[inputSound.selectedIndex].name
+  );
 
   expect(
     screen.getByRole('heading', {name: 'Sessions duration (in minutes) :'})

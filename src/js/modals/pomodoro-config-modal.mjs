@@ -106,10 +106,10 @@ export class PomodoroConfigModal {
           ).append(
             sounds &&
               sounds.map(
-                (value, index) =>
+                ({name}, index) =>
                   `<option value="${index}"${
                     index === currentSound && ' selected'
-                  }>${value}</option>`
+                  }>${name}</option>`
               )
           )
         )
