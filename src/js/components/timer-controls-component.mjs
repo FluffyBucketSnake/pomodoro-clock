@@ -75,7 +75,7 @@ export class TimerControlsComponent {
     this._onShowOptions &&
       buttonOptions.on('click', () => this._onShowOptions());
     const buttonPauseResume = $(
-      '<button class="btn btn-secondary col-12 col-md-5 mb-2"></button>'
+      '<button class="btn btn-secondary col-12 col-md-5"></button>'
     );
     (this._onPause || this._onStop) &&
       buttonPauseResume.on('click', () => this._onPauseResume());
