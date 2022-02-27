@@ -100,8 +100,6 @@
     <!-- Main body -->
     <main id="root" class="container justify-content-between h-100"></main>
 
-    <audio id="audio-alarm" preload="auto" src="audio/default.wav" />
-
     <!-- Internal script -->
     <script type="module">
       import $ from 'jquery';
@@ -109,32 +107,29 @@
 
       import {toSecs, toMillisecs} from './js/time.mjs';
       import {Timer, TimerState} from './js/timer.mjs';
-      import {TimerClockComponent} from './js/components/timer-clock-component.mjs';
-      import {TimerControlsComponent} from './js/components/timer-controls-component.mjs';
+      import {AppView} from './js/app-view.mjs';
 
-      import {PomodoroConfigModal} from './js/modals/pomodoro-config-modal.mjs';
-
-      const PomodoroState = {
-        Inactive: 'inactive',
-        Work: 'work',
-        Break: 'break',
+      const SessionType = {
+        Inactive: -1,
+        Work: 0,
+        Break: 1,
       };
 
       const AlarmSounds = [
-        {name: 'Default', url: 'audio/default.wav'},
-        {name: 'Geese', url: 'audio/geese.mp3'},
-        {name: 'Huge bell', url: 'audio/hugebell.wav'},
-        {name: 'Police siren', url: 'audio/police.wav'},
-        {name: 'Railroad crossing bell', url: 'audio/railroad.wav'},
-        {name: 'Rooster', url: 'audio/rooster.wav'},
-        {name: 'Warning siren', url: 'audio/warningsiren.wav'},
-        {name: 'Whistling', url: 'audio/whistling.wav'},
+        {id: '0', name: 'Default', url: 'audio/default.wav'},
+        {id: '1', name: 'Geese', url: 'audio/geese.mp3'},
+        {id: '2', name: 'Huge bell', url: 'audio/hugebell.wav'},
+        {id: '3', name: 'Police siren', url: 'audio/police.wav'},
+        {id: '4', name: 'Railroad crossing bell', url: 'audio/railroad.wav'},
+        {id: '5', name: 'Rooster', url: 'audio/rooster.wav'},
+        {id: '6', name: 'Warning siren', url: 'audio/warningsiren.wav'},
+        {id: '7', name: 'Whistling', url: 'audio/whistling.wav'},
       ];
 
       const getDefaultOptions = () => ({
         alarm: {
           volume: 0.4,
-          sound: 0,
+          sound: AlarmSounds[0],
         },
         sessionDuration: {
           work: 25,
@@ -143,153 +138,112 @@
       });
 
       $().ready(() => {
-        // Application state.
         let currentOptions = getDefaultOptions();
-        let nsession = 0;
-        let timer = createTimer();
+        let currentSession = createSession();
+        let timer = null;
 
-        // Clock component
-        const timerClockComponent = new TimerClockComponent();
-
-        // Configuration modal
-        const configModal = new PomodoroConfigModal(
+        const appView = new AppView(
           {
             alarmSounds: AlarmSounds,
-            onReset: () => onResetOptions(),
-            onSave: (newOptions) => onSaveOptions(newOptions),
+            onTimerStart: () => startTimer(),
+            onTimerStop: () => stopTimer(),
+            onTimerPause: () => pauseTimer(),
+            onTimerResume: () => resumeTimer(),
+            onTimerReset: () => resetTimer(),
+            onOptionsSave: (value) => saveOptions(value),
+            onOptionsReset: () => resetOptions(),
           },
-          getDefaultOptions()
+          {options: currentOptions, session: currentSession}
         );
 
-        // Timer controls.
-        const timerControlsCallbacks = {
-          onStart: () => set_state(TimerState.Running),
-          onStop: () => set_state(TimerState.Stopped),
-          onPause: () => set_state(TimerState.Paused),
-          onResume: () => set_state(TimerState.Running),
-          onReset: () => reset(),
-          onShowOptions: () => configModal.show(),
-        };
-        const timerControlsComponent = new TimerControlsComponent(
-          timerControlsCallbacks
-        );
+        $('#root').append(appView.rootElement);
 
-        // Media resources.
-        const $audioAlarm = $('#audio-alarm');
-
-        // Initial state.
-        $('#root').append(
-          timerClockComponent.rootElement,
-          timerControlsComponent.rootElement
-        );
-        $('#body').append(configModal.rootElement);
-
-        set_state(TimerState.Stopped);
-
-        // 'Public' functions
-
-        function get_session_duration() {
-          return (
-            (is_break()
-              ? currentOptions.sessionDuration.work
-              : currentOptions.sessionDuration.break) * 60
-          );
+        function createSession(number = 0, type = SessionType.Inactive) {
+          return {
+            number,
+            type,
+            duration: getSessionDuration(type),
+            elapsedTime: 0,
+          };
         }
 
-        function is_break() {
-          return nsession % 2 === 0;
+        function getSessionDuration(type) {
+          switch (type) {
+            case SessionType.Break:
+              return currentOptions.sessionDuration.break;
+            case SessionType.Work:
+            default:
+              return currentOptions.sessionDuration.work;
+          }
         }
 
-        function reset() {
+        function setSession(value) {
+          console.log(`Setting session as: ${JSON.stringify(currentSession)}`);
+          currentSession = value;
+          appView.currentSession = currentSession;
+          timer && timer.stop();
+          timer =
+            value.type !== SessionType.Inactive
+              ? new Timer(
+                  currentSession.duration * 60 * 1000,
+                  () => onTimerRing(),
+                  ({elapsedTime}) => onTimerTick(elapsedTime)
+                )
+              : null;
+        }
+
+        function setOptions(value) {
+          currentOptions = value;
+          setSession(createSession(currentSession.number, currentSession.type));
+        }
+
+        function startTimer() {
+          setSession(createSession(0, SessionType.Work));
+          resumeTimer();
+        }
+
+        function stopTimer() {
+          setSession(createSession());
+          appView.timerState = TimerState.Stopped;
+        }
+
+        function pauseTimer() {
+          timer.pause();
+          appView.timerState = TimerState.Paused;
+        }
+
+        function resumeTimer() {
+          timer.run();
+          appView.timerState = TimerState.Running;
+        }
+
+        function resetTimer() {
           const wasRunning = timer.isRunning;
-          set_session(0);
+          setSession(createSession(currentSession.number, currentSession.type));
           wasRunning && timer.run();
         }
 
-        function set_session(to) {
-          nsession = to;
-          timer.stop();
-          timer = createTimer();
-          timerClockComponent.elapsedTime = 0;
-          timerClockComponent.duration = toMillisecs(get_session_duration());
-          timerClockComponent.session = nsession;
-          timerClockComponent.sessionType = nsession % 2;
-        }
-
-        function set_state(new_state) {
-          const old_state = timer ? timer.state : undefined;
-          const state = new_state;
-          if (typeof old_state !== 'undefined') {
-            switch (old_state) {
-              case TimerState.Paused:
-                break;
-              case TimerState.Stopped:
-                timer = createTimer();
-              case TimerState.Running:
-                break;
-            }
-          }
-          switch (new_state) {
-            case TimerState.Running:
-              timer.run();
-              break;
-            case TimerState.Paused:
-              timer.pause();
-              break;
-            case TimerState.Stopped:
-            default:
-              set_session(0);
-              break;
-          }
-          timerClockComponent.timerState = new_state;
-          timerControlsComponent.timerState = new_state;
-        }
-
-        function onResetOptions() {
-          currentOptions = getDefaultOptions();
+        function resetOptions() {
+          setOptions(getDefaultOptions());
           return currentOptions;
         }
 
-        function onSaveOptions(newOptions) {
-          currentOptions = newOptions;
-          timer = createTimer();
-          timerClockComponent.elapsedTime = 0;
-          timerClockComponent.duration = toMillisecs(get_session_duration());
-          timerClockComponent.session = nsession;
-          timerClockComponent.sessionType = nsession % 2;
+        function saveOptions(newOptions) {
+          setOptions(newOptions);
         }
 
-        // 'Private' functions
-
-        function createTimer() {
-          return new Timer(
-            toMillisecs(get_session_duration()),
-            () => {
-              set_session(nsession + 1);
-              $audioAlarm[0].play();
-              timer.run();
-            },
-            ({elapsedTime}) => {
-              timerClockComponent.elapsedTime = elapsedTime;
-            }
-          );
+        function onTimerRing() {
+          appView.ringAlarm();
+          const nextSessionNumber = currentSession.number + 1;
+          const nextSessionType =
+            nextSessionNumber % 2 == 0 ? SessionType.Work : SessionType.Break;
+          setSession(createSession(nextSessionNumber, nextSessionType));
+          timer.run();
         }
 
-        function button_swap(button, text, from, to) {
-          button.text(text);
-          button.removeClass(from);
-          button.addClass(to);
-        }
-
-        function step(max, value, min, step) {
-          value += step;
-          if (max != null) {
-            value = Math.min(parseInt(max), value);
-          }
-          if (min != null) {
-            value = Math.max(parseInt(min), value);
-          }
-          return value;
+        function onTimerTick(elapsedTime) {
+          currentSession.elapsedTime = elapsedTime;
+          appView.currentSession = currentSession;
         }
       });
     </script>
