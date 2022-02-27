@@ -110,3 +110,40 @@ it('should call onSave when user clicks on Save button, returning the current op
   expect(onSave).toReturnWith(modal.currentOptions);
   expect(modal.currentOptions).toStrictEqual(desiredOptions);
 });
+
+it('should call onReset when user clicks on the Reset button, resetting the options with the value provided by the function', () => {
+  const desiredOptions = {
+    alarm: {
+      volume: 1,
+      sound: 0,
+    },
+    sessionDuration: {
+      work: 30,
+      break: 1,
+    },
+  };
+  const onReset = jest.fn(() => DefaultOptions);
+  const modal = new PomodoroConfigModal(
+    {onReset, ...DefaultProps},
+    DefaultOptions
+  );
+  $(document.body).append(modal.rootElement);
+  modal.show();
+
+  fireEvent.change(screen.getByLabelText('Volume:'), {
+    target: {value: desiredOptions.alarm.volume * 100},
+  });
+  fireEvent.change(screen.getByLabelText('Sound:'), {
+    target: {value: desiredOptions.alarm.sound},
+  });
+  fireEvent.change(screen.getByLabelText('Work:'), {
+    target: {value: desiredOptions.sessionDuration.work},
+  });
+  fireEvent.change(screen.getByLabelText('Break:'), {
+    target: {value: desiredOptions.sessionDuration.break},
+  });
+  fireEvent.click(screen.getByRole('button', {name: 'Reset'}));
+
+  expect(onReset).toBeCalled();
+  expect(modal.currentOptions).toStrictEqual(DefaultOptions);
+});

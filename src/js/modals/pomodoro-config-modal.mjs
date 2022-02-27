@@ -190,18 +190,19 @@ export class PomodoroConfigModal {
     return {rootElement, inputWorkDuration, inputBreakDuration};
   }
 
-  _createFooterDOM({onSave}) {
+  _createFooterDOM({onSave, onReset}) {
     const buttonReset = $(`
       <button id="btn-reset-options" class="btn btn-secondary">
       Reset
       </button>
     `);
+    onReset && buttonReset.click(() => (this.currentOptions = onReset()));
     const buttonSave = $(`
       <button id="btn-save" class="btn btn-success" data-dismiss="modal">
       Save
       </button>
     `);
-    onSave && buttonSave.click(() => onSave(this._currentOptions));
+    onSave && buttonSave.click(() => onSave(this.currentOptions));
 
     return [buttonReset, buttonSave];
   }
