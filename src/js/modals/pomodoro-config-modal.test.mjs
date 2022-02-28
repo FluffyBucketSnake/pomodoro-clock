@@ -31,36 +31,55 @@ const DefaultOptions = {
   },
 };
 
-it('should show all options and configurations when shown', () => {
-  const modal = new PomodoroConfigModal(DefaultProps, DefaultOptions);
-  $(document.body).append(modal.rootElement);
+const DesiredOptions = {
+  alarm: {
+    volume: 1,
+    sound: {id: '0', name: 'a', url: 'a'},
+  },
+  session: {
+    hasLongBreak: true,
+    workDuration: 30,
+    breakDuration: 1,
+  },
+};
 
-  modal.show();
+it.each([DefaultOptions, DesiredOptions])(
+  'should show all options and configurations when shown',
+  (options) => {
+    const modal = new PomodoroConfigModal(DefaultProps, options);
+    $(document.body).append(modal.rootElement);
 
-  expect(screen.getByRole('heading', {name: 'Options'})).toBeVisible();
+    modal.show();
 
-  expect(screen.getByRole('heading', {name: 'Alarm'})).toBeVisible();
-  const inputRange = screen.getByLabelText('Volume:');
-  expect(inputRange).toBeVisible();
-  expect(inputRange.value).toBe('40');
-  const inputSound = screen.getByLabelText('Sound:');
-  expect(inputSound).toBeVisible();
-  expect(inputSound.value).toBe('2');
-  expect(inputSound.options[inputSound.selectedIndex].text).toBe(
-    DefaultOptions.alarm.sound.name
-  );
+    expect(screen.getByRole('heading', {name: 'Options'})).toBeVisible();
 
-  expect(screen.getByRole('heading', {name: 'Session'})).toBeVisible();
-  const inputHasLongBreak = screen.getByLabelText('Long break:');
-  expect(inputHasLongBreak).toBeVisible();
-  expect(inputHasLongBreak).not.toBeChecked();
-  const inputWorkDuration = screen.getByLabelText('Work dur.:');
-  expect(inputWorkDuration).toBeVisible();
-  expect(inputWorkDuration.value).toBe('25');
-  const inputBreakDuration = screen.getByLabelText('Break dur.:');
-  expect(inputBreakDuration).toBeVisible();
-  expect(inputBreakDuration.value).toBe('5');
-});
+    expect(screen.getByRole('heading', {name: 'Alarm'})).toBeVisible();
+    const inputAlarmVolume = screen.getByLabelText('Volume:');
+    expect(inputAlarmVolume).toBeVisible();
+    expect(inputAlarmVolume).toHaveValue(`${options.alarm.volume * 100}`);
+    const inputAlarmSound = screen.getByLabelText('Sound:');
+    expect(inputAlarmSound).toBeVisible();
+    expect(inputAlarmSound).toHaveValue(options.alarm.sound.id);
+    expect(inputAlarmSound.options[inputAlarmSound.selectedIndex].text).toBe(
+      options.alarm.sound.name
+    );
+
+    expect(screen.getByRole('heading', {name: 'Session'})).toBeVisible();
+    const inputHasLongBreak = screen.getByLabelText('Long break:');
+    expect(inputHasLongBreak).toBeVisible();
+    if (options.session.hasLongBreak) {
+      expect(inputHasLongBreak).toBeChecked();
+    } else {
+      expect(inputHasLongBreak).not.toBeChecked();
+    }
+    const inputWorkDuration = screen.getByLabelText('Work dur.:');
+    expect(inputWorkDuration).toBeVisible();
+    expect(inputWorkDuration).toHaveValue(options.session.workDuration);
+    const inputBreakDuration = screen.getByLabelText('Break dur.:');
+    expect(inputBreakDuration).toBeVisible();
+    expect(inputBreakDuration).toHaveValue(options.session.breakDuration);
+  }
+);
 
 it('should show all submitted alarm options', () => {
   const modal = new PomodoroConfigModal(DefaultProps, DefaultOptions);
@@ -76,17 +95,6 @@ it('should show all submitted alarm options', () => {
 });
 
 it('should call onSave when user clicks on Save button, returning the current options', () => {
-  const desiredOptions = {
-    alarm: {
-      volume: 1,
-      sound: {id: '0', name: 'a', url: 'a'},
-    },
-    session: {
-      hasLongBreak: true,
-      workDuration: 30,
-      breakDuration: 1,
-    },
-  };
   const onSave = jest.fn((value) => value);
   const modal = new PomodoroConfigModal(
     {onSave, ...DefaultProps},
@@ -95,25 +103,15 @@ it('should call onSave when user clicks on Save button, returning the current op
   $(document.body).append(modal.rootElement);
   modal.show();
 
-  fireUserChanges(desiredOptions);
+  fireUserChanges(DesiredOptions);
   fireEvent.click(screen.getByRole('button', {name: 'Save'}));
 
   expect(onSave).toBeCalled();
   expect(onSave).toReturnWith(modal.currentOptions);
-  expect(modal.currentOptions).toStrictEqual(desiredOptions);
+  expect(modal.currentOptions).toStrictEqual(DesiredOptions);
 });
 
 it('should call onReset when user clicks on the Reset button, resetting the options with the value provided by the function', () => {
-  const desiredOptions = {
-    alarm: {
-      volume: 1,
-      sound: {id: '0', name: 'a', url: 'a'},
-    },
-    session: {
-      workDuration: 30,
-      breakDuration: 1,
-    },
-  };
   const onReset = jest.fn(() => DefaultOptions);
   const modal = new PomodoroConfigModal(
     {onReset, ...DefaultProps},
@@ -122,7 +120,7 @@ it('should call onReset when user clicks on the Reset button, resetting the opti
   $(document.body).append(modal.rootElement);
   modal.show();
 
-  fireUserChanges(desiredOptions);
+  fireUserChanges(DesiredOptions);
   fireEvent.click(screen.getByRole('button', {name: 'Reset'}));
 
   expect(onReset).toBeCalled();
