@@ -36,9 +36,7 @@ export class AppView {
       this._timerClockComponent.session = 0;
       this._timerClockComponent.sessionType = -1;
       this._timerClockComponent.duration =
-        Session.getInitialSession(this._options.sessionDuration).duration *
-        60 *
-        1000;
+        Session.getInitialSession(this._options.session).duration * 60 * 1000;
     }
     this.elapsedTime = 0;
   }
@@ -115,9 +113,7 @@ export class AppView {
     this._audioAlarm.attr('src', newOptions.alarm.sound.url);
     this._audioAlarm[0].volume = this._options.alarm.volume;
     this._timerClockComponent.duration = this._timerClockComponent.duration =
-      Session.getInitialSession(this._options.sessionDuration).duration *
-      60 *
-      1000;
+      Session.getInitialSession(this._options.session).duration * 60 * 1000;
     next(newOptions);
   }
 }

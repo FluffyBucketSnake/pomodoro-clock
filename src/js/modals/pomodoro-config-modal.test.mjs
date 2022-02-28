@@ -24,9 +24,9 @@ const DefaultOptions = {
     volume: 0.4,
     sound: {id: '2', name: 'c', url: 'c'},
   },
-  sessionDuration: {
-    work: 25,
-    break: 5,
+  session: {
+    workDuration: 25,
+    breakDuration: 5,
   },
 };
 
@@ -77,9 +77,9 @@ it('should call onSave when user clicks on Save button, returning the current op
       volume: 1,
       sound: {id: '0', name: 'a', url: 'a'},
     },
-    sessionDuration: {
-      work: 30,
-      break: 1,
+    session: {
+      workDuration: 30,
+      breakDuration: 1,
     },
   };
   const onSave = jest.fn((value) => value);
@@ -97,10 +97,10 @@ it('should call onSave when user clicks on Save button, returning the current op
     target: {value: desiredOptions.alarm.sound.id},
   });
   fireEvent.change(screen.getByLabelText('Work dur.:'), {
-    target: {value: desiredOptions.sessionDuration.work},
+    target: {value: desiredOptions.session.workDuration},
   });
   fireEvent.change(screen.getByLabelText('Break dur.:'), {
-    target: {value: desiredOptions.sessionDuration.break},
+    target: {value: desiredOptions.session.breakDuration},
   });
   fireEvent.click(screen.getByRole('button', {name: 'Save'}));
 
@@ -115,9 +115,9 @@ it('should call onReset when user clicks on the Reset button, resetting the opti
       volume: 1,
       sound: {id: '0', name: 'a', url: 'a'},
     },
-    sessionDuration: {
-      work: 30,
-      break: 1,
+    session: {
+      workDuration: 30,
+      breakDuration: 1,
     },
   };
   const onReset = jest.fn(() => DefaultOptions);
@@ -135,10 +135,10 @@ it('should call onReset when user clicks on the Reset button, resetting the opti
     target: {value: desiredOptions.alarm.sound.id},
   });
   fireEvent.change(screen.getByLabelText('Work dur.:'), {
-    target: {value: desiredOptions.sessionDuration.work},
+    target: {value: desiredOptions.session.workDuration},
   });
   fireEvent.change(screen.getByLabelText('Break dur.:'), {
-    target: {value: desiredOptions.sessionDuration.break},
+    target: {value: desiredOptions.session.breakDuration},
   });
   fireEvent.click(screen.getByRole('button', {name: 'Reset'}));
 

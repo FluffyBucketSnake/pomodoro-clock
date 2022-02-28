@@ -38,10 +38,10 @@ export class Session {
   get duration() {
     switch (this.type) {
       case SessionType.Break:
-        return this._sessionOptions.break;
+        return this._sessionOptions.breakDuration;
       case SessionType.Work:
       default:
-        return this._sessionOptions.work;
+        return this._sessionOptions.workDuration;
     }
   }
 

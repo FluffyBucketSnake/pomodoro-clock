@@ -7,9 +7,9 @@ const getDefaultOptions = () => ({
     volume: 0.4,
     sound: getAlarmSounds()[0],
   },
-  sessionDuration: {
-    work: 25,
-    break: 5,
+  session: {
+    workDuration: 25,
+    breakDuration: 5,
   },
 });
 
@@ -65,7 +65,7 @@ export class App {
 
   _onStartTimerClicked() {
     this.currentSession = Session.getInitialSession(
-      this._options.sessionDuration,
+      this._options.session,
       this._getSessionEvents()
     );
     this.currentSession.start();

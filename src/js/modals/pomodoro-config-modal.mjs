@@ -76,8 +76,8 @@ export class PomodoroConfigModal {
     this._currentOptions = value;
     this._inputVolume.val(value.alarm.volume * 100);
     this._inputSound.val(value.alarm.sound.id);
-    this._inputWorkDuration.value = value.sessionDuration.work;
-    this._inputBreakDuration.value = value.sessionDuration.break;
+    this._inputWorkDuration.value = value.session.workDuration;
+    this._inputBreakDuration.value = value.session.breakDuration;
   }
 
   get currentOptions() {
@@ -115,13 +115,13 @@ export class PomodoroConfigModal {
       inputSound,
     } = this._createAlarmSectionDOM(alarmSounds);
     const {
-      rootElement: sessionDurationSection,
+      rootElement: sessionSection,
       inputWorkDuration,
       inputBreakDuration,
-    } = this._createSessionDurationSectionDOM();
+    } = this._createSessionSectionDOM();
     const rootElement = $('<div class="container-fluid"></div>').append(
       alarmSection,
-      sessionDurationSection
+      sessionSection
     );
     return {
       rootElement,
@@ -157,7 +157,7 @@ export class PomodoroConfigModal {
     return {rootElement, inputVolume, inputSound};
   }
 
-  _createSessionDurationSectionDOM() {
+  _createSessionSectionDOM() {
     const idInputWorkDuration = 'input-work-duration';
     const idInputBreakDuration = 'input-break-duration';
 
@@ -167,7 +167,7 @@ export class PomodoroConfigModal {
       min: 0,
       max: 60,
       onValueChange: (value) =>
-        (this._currentOptions.sessionDuration.work = value),
+        (this._currentOptions.session.workDuration = value),
     });
     const inputBreakDuration = new SpinButtonComponent({
       id: idInputBreakDuration,
@@ -175,7 +175,7 @@ export class PomodoroConfigModal {
       min: 0,
       max: 60,
       onValueChange: (value) =>
-        (this._currentOptions.sessionDuration.break = value),
+        (this._currentOptions.session.breakDuration = value),
     });
 
     const rootElement = createSection(
