@@ -1,5 +1,6 @@
 import {Session} from './models/session.mjs';
 import {AppView} from './app-view.mjs';
+import {TimerState} from './models/timer.mjs';
 
 const getDefaultOptions = () => ({
   alarm: {
@@ -28,7 +29,7 @@ export class App {
     this._options = getDefaultOptions();
     this._currentSession = null;
 
-    const appView = new AppView(
+    this._view = new AppView(
       {
         alarmSounds: getAlarmSounds(),
         onTimerStart: () => this._onStartTimerClicked(),
@@ -42,12 +43,12 @@ export class App {
       {options: this.options, session: this.currentSession}
     );
 
-    rootElement.append(appView.rootElement);
+    rootElement.append(this._view.rootElement);
   }
 
   set currentSession(value) {
     this._currentSession = value;
-    appView.currentSession = this._currentSession;
+    this._view.currentSession = this._currentSession;
   }
 
   get currentSession() {
@@ -65,26 +66,26 @@ export class App {
   _onStartTimerClicked() {
     this.currentSession = Session.getInitialSession(
       this._options.sessionDuration,
-      _getSessionEvents()
+      this._getSessionEvents()
     );
     this.currentSession.start();
-    appView.timerState = TimerState.Running;
+    this._view.timerState = TimerState.Running;
   }
 
   _onStopTimerClicked() {
     this.currentSession.stop();
     this.currentSession = null;
-    appView.timerState = TimerState.Stopped;
+    this._view.timerState = TimerState.Stopped;
   }
 
   _onPauseTimerClicked() {
     this.currentSession.pause();
-    appView.timerState = TimerState.Paused;
+    this._view.timerState = TimerState.Paused;
   }
 
   _onResumeTimerClicked() {
     this.currentSession.resume();
-    appView.timerState = TimerState.Running;
+    this._view.timerState = TimerState.Running;
   }
 
   _onResetTimerClicked() {
@@ -103,19 +104,19 @@ export class App {
   }
 
   _onSessionEnd() {
-    appView.ringAlarm();
-    this.currentSession = this.currentSession.getNext(_getSessionEvents());
+    this._view.ringAlarm();
+    this.currentSession = this.currentSession.getNext(this._getSessionEvents());
     this.currentSession.start();
   }
 
   _onSessionTick({elapsedTime}) {
-    appView.elapsedTime = elapsedTime;
+    this._view.elapsedTime = elapsedTime;
   }
 
   _getSessionEvents() {
     return {
-      onSessionEnd,
-      onSessionTick,
+      onSessionEnd: () => this._onSessionEnd(),
+      onSessionTick: (time) => this._onSessionTick(time),
     };
   }
 }
