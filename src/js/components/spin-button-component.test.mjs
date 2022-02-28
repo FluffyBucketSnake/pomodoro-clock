@@ -10,7 +10,7 @@ beforeEach(() => {
 });
 
 it('should have an increase and a decrease button and a value input', () => {
-  const spinButton = new SpinButtonComponent(3, 0, 10);
+  const spinButton = new SpinButtonComponent({min: 0, max: 10}, 3);
   $(document.body).append(spinButton.rootElement);
 
   expect(spinButton.value).toBe(3);
@@ -20,49 +20,52 @@ it('should have an increase and a decrease button and a value input', () => {
 });
 
 it('should return correct value after user inputs on text box', () => {
-  const callbacks = {
-    onValueChanged: jest.fn(),
-  };
-  const spinButton = new SpinButtonComponent(0, 0, 10, callbacks);
+  const onValueChange = jest.fn();
+  const spinButton = new SpinButtonComponent(
+    {min: 0, max: 10, onValueChange},
+    0
+  );
   $(document.body).append(spinButton.rootElement);
 
   fireEvent.change(screen.getByDisplayValue('0'), {target: {value: 5}});
 
   expect(screen.getByDisplayValue('5')).toBeVisible();
-  expect(callbacks.onValueChanged).toBeCalledTimes(1);
+  expect(onValueChange).toBeCalledTimes(1);
   expect(spinButton.value).toBe(5);
 });
 
 it('should increase value when user clicks the increment button', () => {
-  const callbacks = {
-    onValueChanged: jest.fn(),
-  };
-  const spinButton = new SpinButtonComponent(0, 0, 10, callbacks);
+  const onValueChange = jest.fn();
+  const spinButton = new SpinButtonComponent(
+    {min: 0, max: 10, onValueChange},
+    0
+  );
   $(document.body).append(spinButton.rootElement);
 
   fireEvent.click(screen.getByRole('button', {name: '+'}));
 
   expect(screen.getByDisplayValue('1')).toBeVisible();
-  expect(callbacks.onValueChanged).toBeCalledTimes(1);
+  expect(onValueChange).toBeCalledTimes(1);
   expect(spinButton.value).toBe(1);
 });
 
 it('should decrease value when user clicks the decrement button', () => {
-  const callbacks = {
-    onValueChanged: jest.fn(),
-  };
-  const spinButton = new SpinButtonComponent(1, 0, 10, callbacks);
+  const onValueChange = jest.fn();
+  const spinButton = new SpinButtonComponent(
+    {min: 0, max: 10, onValueChange},
+    1
+  );
   $(document.body).append(spinButton.rootElement);
 
   fireEvent.click(screen.getByRole('button', {name: '-'}));
 
   expect(screen.getByDisplayValue('0')).toBeVisible();
-  expect(callbacks.onValueChanged).toBeCalledTimes(1);
+  expect(onValueChange).toBeCalledTimes(1);
   expect(spinButton.value).toBe(0);
 });
 
 it('should clamp value to maximum if it exceeds', () => {
-  const spinButton = new SpinButtonComponent(5, 0, 10);
+  const spinButton = new SpinButtonComponent({min: 0, max: 10}, 5);
   $(document.body).append(spinButton.rootElement);
 
   spinButton.value = 15;
@@ -73,7 +76,7 @@ it('should clamp value to maximum if it exceeds', () => {
 });
 
 it('should clamp value to minimum if it is below', () => {
-  const spinButton = new SpinButtonComponent(5, 0, 10);
+  const spinButton = new SpinButtonComponent({min: 0, max: 10}, 5);
   $(document.body).append(spinButton.rootElement);
 
   spinButton.value = -5;

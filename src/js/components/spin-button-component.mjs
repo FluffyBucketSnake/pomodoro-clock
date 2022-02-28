@@ -6,10 +6,10 @@ function clamp(value, min, max) {
   return value;
 }
 
-function createInputBox(type, id, onChanged) {
+function createInputBox(type, value, id, onChanged) {
   const inputBox = $(
     `<input type="${type}" class="form-control text-center"/>`
-  );
+  ).val(value);
   id && inputBox.attr('id', id);
   onChanged && inputBox.change(onChanged);
   return inputBox;
@@ -23,13 +23,13 @@ const createGroupButton = (type, text, onClick) =>
   );
 
 export class SpinButtonComponent {
-  constructor(value, min, max, events = {}, options = {}) {
+  constructor({min, max, ...props}, value) {
     this._min = min;
     this._max = max;
-    events && ({onValueChanged: this.onValueChanged} = events);
+    this._value = clamp(value, this._min, this._max);
+    ({onValueChange: this._onValueChange} = props);
     ({rootElement: this._rootElement, inputBox: this._inputBox} =
-      this._createDOM(options));
-    this.value = value;
+      this._createDOM(props));
   }
 
   get value() {
@@ -41,7 +41,7 @@ export class SpinButtonComponent {
     value = clamp(value, this._min, this._max);
     this._value = value;
     this._inputBox.val(value);
-    oldValue !== undefined && this.onValueChanged && this.onValueChanged(value);
+    oldValue !== undefined && this._onValueChange && this._onValueChange(value);
   }
 
   get rootElement() {
@@ -49,7 +49,7 @@ export class SpinButtonComponent {
   }
 
   _createDOM({id, classes = []}) {
-    const inputBox = createInputBox('number', id, () =>
+    const inputBox = createInputBox('number', this.value, id, () =>
       this._onInputBoxChanged()
     );
     const rootElement = $(

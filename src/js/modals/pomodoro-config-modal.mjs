@@ -159,32 +159,22 @@ export class PomodoroConfigModal {
     const idInputWorkDuration = 'input-work-duration';
     const idInputBreakDuration = 'input-break-duration';
 
-    const inputWorkDuration = new SpinButtonComponent(
-      null,
-      0,
-      60,
-      {
-        onValueChanged: (value) =>
-          (this._currentOptions.sessionDuration.work = value),
-      },
-      {
-        id: idInputWorkDuration,
-        classes: ['col', 'px-0'],
-      }
-    );
-    const inputBreakDuration = new SpinButtonComponent(
-      null,
-      0,
-      60,
-      {
-        onValueChanged: (value) =>
-          (this._currentOptions.sessionDuration.break = value),
-      },
-      {
-        id: idInputBreakDuration,
-        classes: ['col', 'px-0'],
-      }
-    );
+    const inputWorkDuration = new SpinButtonComponent({
+      id: idInputWorkDuration,
+      classes: ['col', 'px-0'],
+      min: 0,
+      max: 60,
+      onValueChange: (value) =>
+        (this._currentOptions.sessionDuration.work = value),
+    });
+    const inputBreakDuration = new SpinButtonComponent({
+      id: idInputBreakDuration,
+      classes: ['col', 'px-0'],
+      min: 0,
+      max: 60,
+      onValueChange: (value) =>
+        (this._currentOptions.sessionDuration.break = value),
+    });
 
     const rootElement = $('<section></section>').append(
       createTitleRow(
