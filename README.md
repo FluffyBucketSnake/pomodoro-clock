@@ -26,7 +26,7 @@ Based on [this app idea](https://github.com/florinpop17/app-ideas/blob/master/Pr
 
 - [x] User can change / customize the minutes in both sessions before starting;
 
-- [ ] User can set a long break session of 10 minutes. This will be activated every 4th break session;
+- [x] User can define a long break session every 4th break session;
 
 - [ ] User can play a sample of the alarm sound;
 
@@ -58,7 +58,7 @@ Baseado [nesta ideia de aplicativo](https://github.com/florinpop17/app-ideas/blo
 
 - [x] Usuário pode alterar a duração, em minutos, de ambas sessões;
 
-- [ ] Usuário pode definir um descanso longo a cada 4ª sessão de descanso;
+- [x] Usuário pode definir um descanso longo a cada 4ª sessão de descanso;
 
 - [ ] Usuário pode testar o som de alarme que escolheu;
 
