@@ -2,11 +2,14 @@ import $ from 'jquery';
 import 'bootstrap';
 import {SpinButtonComponent} from '../components/spin-button-component.mjs';
 
-function createTitleRow(content) {
-  const container = $('<div class="row justify-content-center mb-3"></div>');
-  container.append(content);
-  return container;
-}
+const createSection = (title, content, isEnd = false) =>
+  $(`<section${!isEnd ? ' class="mb-5"' : ''}></section>`).append(
+    createTitleRow(title),
+    content
+  );
+
+const createTitleRow = (title) =>
+  $(`<div class="row justify-content-center mb-3"><h3>${title}</h3></div>`);
 
 function createRow(content) {
   const container = $(
@@ -147,8 +150,7 @@ export class PomodoroConfigModal {
       .append(optionsSound)
       .change(() => this._onInputSoundChanged());
 
-    const rootElement = $('<section class="mb-5"></section>').append([
-      createTitleRow('<h3>Alarm:</h3>'),
+    const rootElement = createSection('Alarm', [
       createLabelRow('range-volume', 'Volume', inputVolume),
       createLabelRow('sel-sound', 'Sound', inputSound),
     ]);
@@ -176,22 +178,24 @@ export class PomodoroConfigModal {
         (this._currentOptions.sessionDuration.break = value),
     });
 
-    const rootElement = $('<section></section>').append(
-      createTitleRow(
-        $(
-          '<h3>Sessions duration<span class="text-muted">(in minutes)</span>:</h3>'
-        )
-      ),
-      createLabelRow(
-        idInputWorkDuration,
-        'Work',
-        inputWorkDuration.rootElement
-      ),
-      createLabelRow(
-        idInputBreakDuration,
-        'Break',
-        inputBreakDuration.rootElement
-      )
+    const rootElement = createSection(
+      'Session',
+      [
+        createRow(
+          '<span class="text-muted mb-2">All durations are measured in minutes.</span>'
+        ),
+        createLabelRow(
+          idInputWorkDuration,
+          'Work dur.',
+          inputWorkDuration.rootElement
+        ),
+        createLabelRow(
+          idInputBreakDuration,
+          'Break dur.',
+          inputBreakDuration.rootElement
+        ),
+      ],
+      true
     );
     return {rootElement, inputWorkDuration, inputBreakDuration};
   }

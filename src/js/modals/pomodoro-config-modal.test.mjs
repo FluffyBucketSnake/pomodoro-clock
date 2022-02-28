@@ -38,7 +38,7 @@ it('should show all options and configurations when shown', () => {
 
   expect(screen.getByRole('heading', {name: 'Options'})).toBeVisible();
 
-  expect(screen.getByRole('heading', {name: 'Alarm:'})).toBeVisible();
+  expect(screen.getByRole('heading', {name: 'Alarm'})).toBeVisible();
   const inputRange = screen.getByLabelText('Volume:');
   expect(inputRange).toBeVisible();
   expect(inputRange.value).toBe('40');
@@ -49,13 +49,11 @@ it('should show all options and configurations when shown', () => {
     DefaultOptions.alarm.sound.name
   );
 
-  expect(
-    screen.getByRole('heading', {name: 'Sessions duration (in minutes) :'})
-  ).toBeVisible();
-  const inputWorkDuration = screen.getByLabelText('Work:');
+  expect(screen.getByRole('heading', {name: 'Session'})).toBeVisible();
+  const inputWorkDuration = screen.getByLabelText('Work dur.:');
   expect(inputWorkDuration).toBeVisible();
   expect(inputWorkDuration.value).toBe('25');
-  const inputBreakDuration = screen.getByLabelText('Break:');
+  const inputBreakDuration = screen.getByLabelText('Break dur.:');
   expect(inputBreakDuration).toBeVisible();
   expect(inputBreakDuration.value).toBe('5');
 });
@@ -98,10 +96,10 @@ it('should call onSave when user clicks on Save button, returning the current op
   fireEvent.change(screen.getByLabelText('Sound:'), {
     target: {value: desiredOptions.alarm.sound.id},
   });
-  fireEvent.change(screen.getByLabelText('Work:'), {
+  fireEvent.change(screen.getByLabelText('Work dur.:'), {
     target: {value: desiredOptions.sessionDuration.work},
   });
-  fireEvent.change(screen.getByLabelText('Break:'), {
+  fireEvent.change(screen.getByLabelText('Break dur.:'), {
     target: {value: desiredOptions.sessionDuration.break},
   });
   fireEvent.click(screen.getByRole('button', {name: 'Save'}));
@@ -136,10 +134,10 @@ it('should call onReset when user clicks on the Reset button, resetting the opti
   fireEvent.change(screen.getByLabelText('Sound:'), {
     target: {value: desiredOptions.alarm.sound.id},
   });
-  fireEvent.change(screen.getByLabelText('Work:'), {
+  fireEvent.change(screen.getByLabelText('Work dur.:'), {
     target: {value: desiredOptions.sessionDuration.work},
   });
-  fireEvent.change(screen.getByLabelText('Break:'), {
+  fireEvent.change(screen.getByLabelText('Break dur.:'), {
     target: {value: desiredOptions.sessionDuration.break},
   });
   fireEvent.click(screen.getByRole('button', {name: 'Reset'}));
