@@ -183,7 +183,7 @@ export class PomodoroConfigModal {
         createRow(
           '<span class="text-muted mb-2">All durations are measured in minutes.</span>'
         ),
-        createLabelRow('', 'Long break:', inputHasLongBreak),
+        createLabelRow('', 'Long break', inputHasLongBreak),
         createLabelRow(
           idInputWorkDuration,
           'Work dur.',
