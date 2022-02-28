@@ -159,7 +159,7 @@ export class PomodoroConfigModal {
     const idInputWorkDuration = 'input-work-duration';
     const idInputBreakDuration = 'input-break-duration';
 
-    const inputHasLongBreak = $('<button>Burg</button>');
+    const inputHasLongBreak = $('<button id="input-long-break">Burg</button>');
     const inputWorkDuration = new SpinButtonComponent({
       id: idInputWorkDuration,
       classes: ['col', 'px-0'],
@@ -183,7 +183,7 @@ export class PomodoroConfigModal {
         createRow(
           '<span class="text-muted mb-2">All durations are measured in minutes.</span>'
         ),
-        createLabelRow('', 'Long break', inputHasLongBreak),
+        createLabelRow('input-long-break', 'Long break', inputHasLongBreak),
         createLabelRow(
           idInputWorkDuration,
           'Work dur.',
