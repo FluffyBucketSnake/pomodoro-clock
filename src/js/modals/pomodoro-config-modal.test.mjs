@@ -5,6 +5,10 @@ import $ from 'jquery';
 
 import {PomodoroConfigModal} from './pomodoro-config-modal.mjs';
 
+beforeEach(() => {
+  $(document.body).empty();
+});
+
 const DefaultProps = {
   alarmSounds: [
     {id: '0', name: 'a', url: 'a'},
