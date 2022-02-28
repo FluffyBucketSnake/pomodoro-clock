@@ -8,8 +8,10 @@ const getDefaultOptions = () => ({
     sound: getAlarmSounds()[0],
   },
   session: {
+    hasLongBreak: false,
     workDuration: 25,
     breakDuration: 5,
+    longBreakDuration: 30,
   },
 });
 

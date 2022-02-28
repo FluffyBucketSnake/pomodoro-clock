@@ -3,8 +3,10 @@ import {jest} from '@jest/globals';
 import {Session, SessionState, SessionType} from './session.mjs';
 
 const DefaultSessionOptions = {
+  hasLongBreak: false,
   workDuration: 25,
   breakDuration: 5,
+  longBreakDuration: 30,
 };
 
 afterEach(() => {
@@ -34,7 +36,7 @@ it.each([...Array(10).keys()])(
 );
 
 it.each([...Array(10).keys()])(
-  'should be a break when its number is odd',
+  'should be a work session when its number is odd',
   (k) => {
     const number = 2 * k + 1;
     const session = new Session(number, DefaultSessionOptions);
@@ -42,6 +44,22 @@ it.each([...Array(10).keys()])(
     expect(session.number).toBe(number);
     expect(session.type).toBe(SessionType.Work);
     expect(session.duration).toBe(DefaultSessionOptions.workDuration);
+  }
+);
+
+it.each([...Array(10).keys()])(
+  'if long break is activated, should be a long break when its number is divisible by four',
+  (k) => {
+    const number = 4 * k;
+    const longBreakSessionOptions = {
+      ...DefaultSessionOptions,
+      hasLongBreak: true,
+    };
+    const session = new Session(number, longBreakSessionOptions);
+
+    expect(session.number).toBe(number);
+    expect(session.type).toBe(SessionType.Break);
+    expect(session.duration).toBe(longBreakSessionOptions.longBreakDuration);
   }
 );
 

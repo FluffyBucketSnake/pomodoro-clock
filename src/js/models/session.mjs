@@ -38,7 +38,11 @@ export class Session {
   get duration() {
     switch (this.type) {
       case SessionType.Break:
-        return this._sessionOptions.breakDuration;
+        if (this._sessionOptions.hasLongBreak && this.number % 4 == 0) {
+          return this._sessionOptions.longBreakDuration;
+        } else {
+          return this._sessionOptions.breakDuration;
+        }
       case SessionType.Work:
       default:
         return this._sessionOptions.workDuration;
