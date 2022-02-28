@@ -19,7 +19,7 @@ function createRow(content) {
 
 function createLabelRow(id, text, content) {
   return createRow([
-    `<label class="col-3 my-2" for="${id}">${text}:</label>`,
+    `<label class="col-3 my-3" for="${id}">${text}:</label>`,
     content,
   ]);
 }
@@ -60,6 +60,7 @@ export class PomodoroConfigModal {
       rootElement: this._rootElement,
       inputVolume: this._inputVolume,
       inputSound: this._inputSound,
+      inputHasLongBreak: this._inputHasLongBreak,
       inputWorkDuration: this._inputWorkDuration,
       inputBreakDuration: this._inputBreakDuration,
     } = this._createDOM(props, value));
@@ -74,6 +75,7 @@ export class PomodoroConfigModal {
     this._currentOptions = value;
     this._inputVolume.val(value.alarm.volume * 100);
     this._inputSound.val(value.alarm.sound.id);
+    this._inputHasLongBreak[0].checked = value.session.hasLongBreak;
     this._inputWorkDuration.value = value.session.workDuration;
     this._inputBreakDuration.value = value.session.breakDuration;
   }
@@ -87,46 +89,29 @@ export class PomodoroConfigModal {
   }
 
   _createDOM(props) {
-    const {
-      rootElement: body,
-      inputVolume,
-      inputSound,
-      inputWorkDuration,
-      inputBreakDuration,
-    } = this._createBodyDOM(props);
+    const {rootElement: body, ...inputs} = this._createBodyDOM(props);
     const footer = this._createFooterDOM(props);
     const rootElement = createModal('Options', body, footer);
 
     return {
       rootElement,
-      inputVolume,
-      inputSound,
-      inputWorkDuration,
-      inputBreakDuration,
+      ...inputs,
     };
   }
 
   _createBodyDOM({alarmSounds}) {
-    const {
-      rootElement: alarmSection,
-      inputVolume,
-      inputSound,
-    } = this._createAlarmSectionDOM(alarmSounds);
-    const {
-      rootElement: sessionSection,
-      inputWorkDuration,
-      inputBreakDuration,
-    } = this._createSessionSectionDOM();
+    const {rootElement: alarmSection, ...alarmInputs} =
+      this._createAlarmSectionDOM(alarmSounds);
+    const {rootElement: sessionSection, ...sessionInputs} =
+      this._createSessionSectionDOM();
     const rootElement = $('<div class="container-fluid"></div>').append(
       alarmSection,
       sessionSection
     );
     return {
       rootElement,
-      inputVolume,
-      inputSound,
-      inputWorkDuration,
-      inputBreakDuration,
+      ...alarmInputs,
+      ...sessionInputs,
     };
   }
 
@@ -158,8 +143,17 @@ export class PomodoroConfigModal {
   _createSessionSectionDOM() {
     const idInputWorkDuration = 'input-work-duration';
     const idInputBreakDuration = 'input-break-duration';
+    const idInputHasLongBreak = 'input-has-long-break';
 
-    const inputHasLongBreak = $('<button id="input-long-break">Burg</button>');
+    const inputHasLongBreak = $(
+      `<input type="checkbox" class="custom-control-input" id="${idInputHasLongBreak}">`
+    ).change(() => this._onInputHasLongBreakChanged());
+    const inputHasLongBreakContainer = $(
+      '<div class="custom-control custom-switch"></div>'
+    ).append(
+      inputHasLongBreak,
+      `<label class="custom-control-label" for="${idInputHasLongBreak}"/>`
+    );
     const inputWorkDuration = new SpinButtonComponent({
       id: idInputWorkDuration,
       classes: ['col', 'px-0'],
@@ -183,7 +177,11 @@ export class PomodoroConfigModal {
         createRow(
           '<span class="text-muted mb-2">All durations are measured in minutes.</span>'
         ),
-        createLabelRow('input-long-break', 'Long break', inputHasLongBreak),
+        createLabelRow(
+          idInputHasLongBreak,
+          'Long break',
+          inputHasLongBreakContainer
+        ),
         createLabelRow(
           idInputWorkDuration,
           'Work dur.',
@@ -197,7 +195,12 @@ export class PomodoroConfigModal {
       ],
       true
     );
-    return {rootElement, inputWorkDuration, inputBreakDuration};
+    return {
+      rootElement,
+      inputHasLongBreak,
+      inputWorkDuration,
+      inputBreakDuration,
+    };
   }
 
   _createFooterDOM({onSave, onReset}) {
@@ -226,5 +229,10 @@ export class PomodoroConfigModal {
     this._currentOptions.alarm.sound = this._alarmSounds.find(
       ({id}) => id === this._inputSound.val()
     );
+  }
+
+  _onInputHasLongBreakChanged() {
+    this._currentOptions.session.hasLongBreak =
+      this._inputHasLongBreak[0].checked;
   }
 }

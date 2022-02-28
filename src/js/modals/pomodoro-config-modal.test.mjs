@@ -25,6 +25,7 @@ const DefaultOptions = {
     sound: {id: '2', name: 'c', url: 'c'},
   },
   session: {
+    hasLongBreak: false,
     workDuration: 25,
     breakDuration: 5,
   },
@@ -52,6 +53,7 @@ it('should show all options and configurations when shown', () => {
   expect(screen.getByRole('heading', {name: 'Session'})).toBeVisible();
   const inputHasLongBreak = screen.getByLabelText('Long break:');
   expect(inputHasLongBreak).toBeVisible();
+  expect(inputHasLongBreak).not.toBeChecked();
   const inputWorkDuration = screen.getByLabelText('Work dur.:');
   expect(inputWorkDuration).toBeVisible();
   expect(inputWorkDuration.value).toBe('25');
@@ -80,6 +82,7 @@ it('should call onSave when user clicks on Save button, returning the current op
       sound: {id: '0', name: 'a', url: 'a'},
     },
     session: {
+      hasLongBreak: true,
       workDuration: 30,
       breakDuration: 1,
     },
@@ -92,18 +95,7 @@ it('should call onSave when user clicks on Save button, returning the current op
   $(document.body).append(modal.rootElement);
   modal.show();
 
-  fireEvent.change(screen.getByLabelText('Volume:'), {
-    target: {value: desiredOptions.alarm.volume * 100},
-  });
-  fireEvent.change(screen.getByLabelText('Sound:'), {
-    target: {value: desiredOptions.alarm.sound.id},
-  });
-  fireEvent.change(screen.getByLabelText('Work dur.:'), {
-    target: {value: desiredOptions.session.workDuration},
-  });
-  fireEvent.change(screen.getByLabelText('Break dur.:'), {
-    target: {value: desiredOptions.session.breakDuration},
-  });
+  fireUserChanges(desiredOptions);
   fireEvent.click(screen.getByRole('button', {name: 'Save'}));
 
   expect(onSave).toBeCalled();
@@ -130,11 +122,22 @@ it('should call onReset when user clicks on the Reset button, resetting the opti
   $(document.body).append(modal.rootElement);
   modal.show();
 
+  fireUserChanges(desiredOptions);
+  fireEvent.click(screen.getByRole('button', {name: 'Reset'}));
+
+  expect(onReset).toBeCalled();
+  expect(modal.currentOptions).toStrictEqual(DefaultOptions);
+});
+
+function fireUserChanges(desiredOptions) {
   fireEvent.change(screen.getByLabelText('Volume:'), {
     target: {value: desiredOptions.alarm.volume * 100},
   });
   fireEvent.change(screen.getByLabelText('Sound:'), {
     target: {value: desiredOptions.alarm.sound.id},
+  });
+  fireEvent.change(screen.getByLabelText('Long break:'), {
+    target: {checked: desiredOptions.session.hasLongBreak},
   });
   fireEvent.change(screen.getByLabelText('Work dur.:'), {
     target: {value: desiredOptions.session.workDuration},
@@ -142,8 +145,4 @@ it('should call onReset when user clicks on the Reset button, resetting the opti
   fireEvent.change(screen.getByLabelText('Break dur.:'), {
     target: {value: desiredOptions.session.breakDuration},
   });
-  fireEvent.click(screen.getByRole('button', {name: 'Reset'}));
-
-  expect(onReset).toBeCalled();
-  expect(modal.currentOptions).toStrictEqual(DefaultOptions);
-});
+}
