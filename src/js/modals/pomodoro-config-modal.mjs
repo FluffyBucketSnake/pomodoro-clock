@@ -9,9 +9,18 @@ function createTitleRow(content) {
 }
 
 function createRow(content) {
-  const container = $('<div class="row justify-content-center"></div>');
+  const container = $(
+    '<div class="row justify-content-center align-items-baseline"></div>'
+  );
   container.append(content);
   return container;
+}
+
+function createLabelRow(id, text, content) {
+  return createRow([
+    `<label class="col-3 my-2" for="${id}">${text}:</label>`,
+    content,
+  ]);
 }
 
 function createModalHeader(title) {
@@ -126,24 +135,23 @@ export class PomodoroConfigModal {
         type="range" 
         name="volume" 
         id="range-volume" 
-        class="mx-0 w-100"
+        class="col"
         min="0" 
         max="100"/>`).change(() => this._onInputVolumeChanged());
     const optionsSound = sounds.map(
       ({id, name}) => `<option value="${id}"}>${name}</option>`
     );
     const inputSound = $(
-      '<select name="sel-sound" id="sel-sound" class="custom-select"></select>'
+      '<select name="sel-sound" id="sel-sound" class="col custom-select"></select>'
     )
       .append(optionsSound)
       .change(() => this._onInputSoundChanged());
 
-    const rootElement = $('<section class="mb-5"></section>')
-      .append(createTitleRow('<h3>Alarm:</h3>'))
-      .append(createRow('<label for="range-volume">Volume:</label>'))
-      .append(createRow(inputVolume))
-      .append(createRow('<label for="sel-sound">Sound:</label>'))
-      .append(createRow(inputSound));
+    const rootElement = $('<section class="mb-5"></section>').append([
+      createTitleRow('<h3>Alarm:</h3>'),
+      createLabelRow('range-volume', 'Volume', inputVolume),
+      createLabelRow('sel-sound', 'Sound', inputSound),
+    ]);
     return {rootElement, inputVolume, inputSound};
   }
 
@@ -161,6 +169,7 @@ export class PomodoroConfigModal {
       },
       {
         id: idInputWorkDuration,
+        classes: ['col', 'px-0'],
       }
     );
     const inputBreakDuration = new SpinButtonComponent(
@@ -173,6 +182,7 @@ export class PomodoroConfigModal {
       },
       {
         id: idInputBreakDuration,
+        classes: ['col', 'px-0'],
       }
     );
 
@@ -182,10 +192,16 @@ export class PomodoroConfigModal {
           '<h3>Sessions duration<span class="text-muted">(in minutes)</span>:</h3>'
         )
       ),
-      createRow($(`<label for="${idInputWorkDuration}">Work:</label>`)),
-      createRow(inputWorkDuration.rootElement),
-      createRow($(`<label for="${idInputBreakDuration}">Break:</label>`)),
-      createRow(inputBreakDuration.rootElement)
+      createLabelRow(
+        idInputWorkDuration,
+        'Work',
+        inputWorkDuration.rootElement
+      ),
+      createLabelRow(
+        idInputBreakDuration,
+        'Break',
+        inputBreakDuration.rootElement
+      )
     );
     return {rootElement, inputWorkDuration, inputBreakDuration};
   }
