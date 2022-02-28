@@ -3,8 +3,8 @@ import {jest} from '@jest/globals';
 import {Session, SessionState, SessionType} from './session.mjs';
 
 const DefaultSessionOptions = {
-  work: 25,
-  break: 5,
+  workDuration: 25,
+  breakDuration: 5,
 };
 
 afterEach(() => {
@@ -29,7 +29,7 @@ it.each([...Array(10).keys()])(
 
     expect(session.number).toBe(number);
     expect(session.type).toBe(SessionType.Break);
-    expect(session.duration).toBe(DefaultSessionOptions.break);
+    expect(session.duration).toBe(DefaultSessionOptions.breakDuration);
   }
 );
 
@@ -41,7 +41,7 @@ it.each([...Array(10).keys()])(
 
     expect(session.number).toBe(number);
     expect(session.type).toBe(SessionType.Work);
-    expect(session.duration).toBe(DefaultSessionOptions.work);
+    expect(session.duration).toBe(DefaultSessionOptions.workDuration);
   }
 );
 
