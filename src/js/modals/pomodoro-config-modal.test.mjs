@@ -74,10 +74,10 @@ it.each([DefaultOptions, DesiredOptions])(
     } else {
       expect(inputHasLongBreak).not.toBeChecked();
     }
-    const inputWorkDuration = screen.getByLabelText('Work dur.:');
+    const inputWorkDuration = screen.getByLabelText('Work duration:');
     expect(inputWorkDuration).toBeVisible();
     expect(inputWorkDuration).toHaveValue(options.session.workDuration);
-    const inputBreakDuration = screen.getByLabelText('Break dur.:');
+    const inputBreakDuration = screen.getByLabelText('Break duration:');
     expect(inputBreakDuration).toBeVisible();
     expect(inputBreakDuration).toHaveValue(options.session.breakDuration);
     if (options.session.hasLongBreak) {
@@ -148,10 +148,10 @@ function fireUserChanges(desiredOptions) {
   fireEvent.change(screen.getByLabelText('Long break:'), {
     target: {checked: desiredOptions.session.hasLongBreak},
   });
-  fireEvent.change(screen.getByLabelText('Work dur.:'), {
+  fireEvent.change(screen.getByLabelText('Work duration:'), {
     target: {value: desiredOptions.session.workDuration},
   });
-  fireEvent.change(screen.getByLabelText('Break dur.:'), {
+  fireEvent.change(screen.getByLabelText('Break duration:'), {
     target: {value: desiredOptions.session.breakDuration},
   });
   fireEvent.change(screen.getByLabelText('Long break dur.:'), {

@@ -9,17 +9,19 @@ const createSection = (title, content, isEnd = false) =>
   );
 
 const createTitleRow = (title) =>
-  $(`<div class="row mb-3"><h3>${title}</h3></div>`);
+  $(`<div class="row justify-content-center"><h3>${title}</h3></div>`);
 
 function createRow(content) {
-  const container = $('<div class="row align-items-baseline"></div>');
+  const container = $(
+    '<div class="row justify-content-center align-items-baseline"></div>'
+  );
   container.append(content);
   return container;
 }
 
 function createLabelRow(id, text, content) {
   return createRow([
-    `<label class="col-3 my-3" for="${id}">${text}:</label>`,
+    `<label class="col-4 my-3" for="${id}">${text}:</label>`,
     content,
   ]);
 }
@@ -153,7 +155,7 @@ export class PomodoroConfigModal {
       `<input type="checkbox" class="custom-control-input" id="${idInputHasLongBreak}">`
     ).change(() => this._onInputHasLongBreakChanged());
     const inputHasLongBreakContainer = $(
-      '<div class="custom-control custom-switch"></div>'
+      '<div class="col custom-control custom-switch"></div>'
     ).append(
       inputHasLongBreak,
       `<label class="custom-control-label" for="${idInputHasLongBreak}"/>`
@@ -191,22 +193,22 @@ export class PomodoroConfigModal {
     const rootElement = createSection(
       'Session',
       [
-        createRow(
-          '<span class="text-muted mb-2">All durations are measured in minutes.</span>'
-        ),
         createLabelRow(
           idInputHasLongBreak,
           'Long break',
           inputHasLongBreakContainer
         ),
+        createRow(
+          '<span class="text-muted">All durations are measured in minutes.</span>'
+        ),
         createLabelRow(
           idInputWorkDuration,
-          'Work dur.',
+          'Work duration',
           inputWorkDuration.rootElement
         ),
         createLabelRow(
           idInputBreakDuration,
-          'Break dur.',
+          'Break duration',
           inputBreakDuration.rootElement
         ),
         rowInputLongBreakDuration,
