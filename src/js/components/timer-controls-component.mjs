@@ -1,6 +1,6 @@
 import $ from 'jquery';
 
-import {TimerState} from '../timer.mjs';
+import {TimerState} from '../models/timer.mjs';
 
 function createButton(text, onClick, {type, isHalf} = {}) {
   const button = $(`<button class="btn col-12">${text}</button>`);

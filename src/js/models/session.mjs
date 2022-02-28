@@ -1,4 +1,4 @@
-import {Timer} from '../timer.mjs';
+import {Timer} from './timer.mjs';
 
 export const SessionType = {
   Work: 0,

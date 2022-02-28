@@ -4,16 +4,12 @@ import {PomodoroConfigModal} from './modals/pomodoro-config-modal.mjs';
 
 import $ from 'jquery';
 
+import {Session} from './models/session.mjs';
+
 export class AppView {
-  constructor(
-    props,
-    {
-      options: initialOptions,
-      session: initialSession,
-      timerState: initialTimerState,
-    }
-  ) {
-    this._currentSession = initialSession;
+  constructor(props, {options: initialOptions, timerState: initialTimerState}) {
+    this._currentSession = null;
+    this._elapsedTime = 0;
     this._options = initialOptions;
     this._timerState = initialTimerState;
     ({
@@ -23,6 +19,7 @@ export class AppView {
       audioAlarm: this._audioAlarm,
       configModal: this._configModal,
     } = this._createDOM(props));
+    this.currentSession = null;
   }
 
   get rootElement() {
@@ -31,10 +28,24 @@ export class AppView {
 
   set currentSession(value) {
     this._currentSession = value;
-    this._timerClockComponent.session = value.number;
-    this._timerClockComponent.sessionType = value.type;
-    this._timerClockComponent.duration = value.duration * 60 * 1000;
-    this._timerClockComponent.elapsedTime = value.elapsedTime;
+    if (value) {
+      this._timerClockComponent.session = value.number;
+      this._timerClockComponent.sessionType = value.type;
+      this._timerClockComponent.duration = value.duration * 60 * 1000;
+    } else {
+      this._timerClockComponent.session = 0;
+      this._timerClockComponent.sessionType = -1;
+      this._timerClockComponent.duration =
+        Session.getInitialSession(this._options.sessionDuration).duration *
+        60 *
+        1000;
+    }
+    this.elapsedTime = 0;
+  }
+
+  set elapsedTime(value) {
+    this._elapsedTime = value;
+    this._timerClockComponent.elapsedTime = value;
   }
 
   set timerState(value) {
@@ -58,10 +69,6 @@ export class AppView {
     onOptionsReset,
   }) {
     const timerClockComponent = new TimerClockComponent();
-    timerClockComponent.session = this._currentSession.number;
-    timerClockComponent.sessionType = this._currentSession.type;
-    timerClockComponent.duration = this._currentSession.duration * 60 * 1000;
-    timerClockComponent.timerState = this._timerState;
 
     const timerControlsEvents = {
       onStart: onTimerStart,
@@ -84,11 +91,7 @@ export class AppView {
     const configModal = new PomodoroConfigModal(
       {
         alarmSounds,
-        onSave: (newOptions) => {
-          this._audioAlarm.attr('src', newOptions.alarm.sound.url);
-          this._audioAlarm[0].volume = this._options.alarm.volume;
-          onOptionsSave(newOptions);
-        },
+        onSave: (newOptions) => this._onSaveOptions(newOptions, onOptionsSave),
         onReset: onOptionsReset,
       },
       this._options
@@ -106,5 +109,15 @@ export class AppView {
       audioAlarm,
       configModal,
     };
+  }
+
+  _onSaveOptions(newOptions, next) {
+    this._audioAlarm.attr('src', newOptions.alarm.sound.url);
+    this._audioAlarm[0].volume = this._options.alarm.volume;
+    this._timerClockComponent.duration = this._timerClockComponent.duration =
+      Session.getInitialSession(this._options.sessionDuration).duration *
+      60 *
+      1000;
+    next(newOptions);
   }
 }

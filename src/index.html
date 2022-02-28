@@ -105,15 +105,8 @@
       import $ from 'jquery';
       import 'bootstrap';
 
-      import {toSecs, toMillisecs} from './js/time.mjs';
-      import {Timer, TimerState} from './js/timer.mjs';
+      import {Session} from './js/models/session.mjs';
       import {AppView} from './js/app-view.mjs';
-
-      const SessionType = {
-        Inactive: -1,
-        Work: 0,
-        Break: 1,
-      };
 
       const AlarmSounds = [
         {id: '0', name: 'Default', url: 'audio/default.wav'},
@@ -139,8 +132,12 @@
 
       $().ready(() => {
         let currentOptions = getDefaultOptions();
-        let currentSession = createSession();
-        let timer = null;
+        let currentSession = null;
+
+        const sessionEvents = {
+          onSessionEnd,
+          onSessionTick,
+        };
 
         const appView = new AppView(
           {
@@ -158,68 +155,45 @@
 
         $('#root').append(appView.rootElement);
 
-        function createSession(number = 0, type = SessionType.Inactive) {
-          return {
-            number,
-            type,
-            duration: getSessionDuration(type),
-            elapsedTime: 0,
-          };
-        }
-
-        function getSessionDuration(type) {
-          switch (type) {
-            case SessionType.Break:
-              return currentOptions.sessionDuration.break;
-            case SessionType.Work:
-            default:
-              return currentOptions.sessionDuration.work;
-          }
-        }
-
         function setSession(value) {
-          console.log(`Setting session as: ${JSON.stringify(currentSession)}`);
           currentSession = value;
           appView.currentSession = currentSession;
-          timer && timer.stop();
-          timer =
-            value.type !== SessionType.Inactive
-              ? new Timer(
-                  currentSession.duration * 60 * 1000,
-                  () => onTimerRing(),
-                  ({elapsedTime}) => onTimerTick(elapsedTime)
-                )
-              : null;
         }
 
         function setOptions(value) {
           currentOptions = value;
-          setSession(createSession(currentSession.number, currentSession.type));
         }
 
         function startTimer() {
-          setSession(createSession(0, SessionType.Work));
-          resumeTimer();
+          setSession(
+            Session.getInitialSession(
+              currentOptions.sessionDuration,
+              sessionEvents
+            )
+          );
+          currentSession.start();
+          appView.timerState = TimerState.Running;
         }
 
         function stopTimer() {
-          setSession(createSession());
+          currentSession.stop();
+          setSession(null);
           appView.timerState = TimerState.Stopped;
         }
 
         function pauseTimer() {
-          timer.pause();
+          currentSession.pause();
           appView.timerState = TimerState.Paused;
         }
 
         function resumeTimer() {
-          timer.run();
+          currentSession.resume();
           appView.timerState = TimerState.Running;
         }
 
         function resetTimer() {
           const wasRunning = timer.isRunning;
-          setSession(createSession(currentSession.number, currentSession.type));
+          setSession(Session.getInitialSession(currentOptions));
           wasRunning && timer.run();
         }
 
@@ -232,18 +206,14 @@
           setOptions(newOptions);
         }
 
-        function onTimerRing() {
+        function onSessionEnd() {
           appView.ringAlarm();
-          const nextSessionNumber = currentSession.number + 1;
-          const nextSessionType =
-            nextSessionNumber % 2 == 0 ? SessionType.Work : SessionType.Break;
-          setSession(createSession(nextSessionNumber, nextSessionType));
-          timer.run();
+          setSession(currentSession.getNext(sessionEvents));
+          currentSession.start();
         }
 
-        function onTimerTick(elapsedTime) {
-          currentSession.elapsedTime = elapsedTime;
-          appView.currentSession = currentSession;
+        function onSessionTick({elapsedTime}) {
+          appView.elapsedTime = elapsedTime;
         }
       });
     </script>

@@ -1,7 +1,7 @@
 import $ from 'jquery';
 
-import {TimerState} from '../timer.mjs';
-import {toMillisecs, toSecs} from '../time.mjs';
+import {TimerState} from '../models/timer.mjs';
+import {toMillisecs, toSecs} from '../models/time.mjs';
 
 export const SessionType = {
   Work: 0,
