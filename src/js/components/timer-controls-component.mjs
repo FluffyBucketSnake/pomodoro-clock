@@ -1,13 +1,13 @@
-import $ from 'jquery';
+import {$$} from '../ui.mjs';
 
 import {TimerState} from '../models/timer.mjs';
 
 function createButton(text, onClick, {type, isHalf} = {}) {
-  const button = $(`<button class="btn col-12">${text}</button>`);
-  onClick && button.click(onClick);
-  type && button.addClass(`btn-${type}`);
-  isHalf && button.addClass('col-md-5');
-  return button;
+  return $$(
+    'button',
+    ['btn col-12', type && `btn-${type}`, isHalf && 'col-md-5'],
+    {content: text}
+  ).click(onClick);
 }
 
 export class TimerControlsComponent {
@@ -94,15 +94,14 @@ export class TimerControlsComponent {
       {type: 'secondary', isHalf: true}
     );
 
-    const rowMain = $('<div class="row mb-2"></div>').append(buttonStartStop);
-    const rowSecondaryStopped = $('<div class="row mb-2"></div>').append(
-      buttonOptions
-    );
-    const rowSecondaryStarted = $(
-      '<div class="row mb-2 justify-content-between"></div>'
+    const rowMain = $$('div', 'row mb-2').append(buttonStartStop);
+    const rowSecondaryStopped = $$('div', 'row mb-2').append(buttonOptions);
+    const rowSecondaryStarted = $$(
+      'div',
+      'row mb-2 justify-content-between'
     ).append(buttonPauseResume, buttonReset);
 
-    const rootElement = $('<div></div>').append(rowMain);
+    const rootElement = $$('div').append(rowMain);
 
     return {
       rootElement,

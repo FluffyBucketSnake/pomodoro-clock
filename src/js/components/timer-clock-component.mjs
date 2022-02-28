@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import {$$} from '../ui.mjs';
 
 import {TimerState} from '../models/timer.mjs';
 import {toMillisecs, toSecs} from '../models/time.mjs';
@@ -57,18 +57,17 @@ export class TimerClockComponent {
   }
 
   _createDOM() {
-    const spanTime = createEmptySpan('pc-tc-time');
-    const spanState = createEmptySpan('pc-tc-state');
-    const spanSession = createEmptySpan('pc-tc-session');
+    const spanTime = $$('span', 'pc-tc-time');
+    const spanState = $$('span', 'pc-tc-state');
+    const spanSession = $$('span', 'pc-tc-session');
 
-    const timerOverlay = createEmptyDiv('pc-tc-overlay').append(
+    const timerOverlay = $$('div', 'pc-tc-overlay').append(
       spanTime,
       spanState,
       spanSession
     );
 
-    const rootElement =
-      createEmptyDiv('pc-tc mx-auto mb-5').append(timerOverlay);
+    const rootElement = $$('div', 'pc-tc mx-auto mb-5').append(timerOverlay);
 
     return {rootElement, spanTime, spanState, spanSession};
   }
@@ -111,10 +110,6 @@ const PomodoroClockState = {
   Work: 'work',
   Break: 'break',
 };
-
-const createEmptySpan = (className) => $(`<span class="${className}"></span>`);
-
-const createEmptyDiv = (className) => $(`<div class="${className}"></div>`);
 
 function getTimeText(duration, elapsedTime) {
   const durationInSeconds = Math.floor(toSecs(duration));

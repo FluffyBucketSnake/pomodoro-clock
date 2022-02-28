@@ -2,8 +2,7 @@ import {TimerClockComponent} from './components/timer-clock-component.mjs';
 import {TimerControlsComponent} from './components/timer-controls-component.mjs';
 import {PomodoroConfigModal} from './modals/pomodoro-config-modal.mjs';
 
-import $ from 'jquery';
-
+import {$$} from './ui.mjs';
 import {Session} from './models/session.mjs';
 
 export class AppView {
@@ -81,9 +80,11 @@ export class AppView {
     );
 
     const currentAlarmSound = this._options.alarm.sound;
-    const audioAlarm = $(
-      `<audio id="audio-alarm" preload="auto" src="${currentAlarmSound.url}" />`
-    );
+    const audioAlarm = $$('audio', '', {
+      id: 'audio-alarm',
+      preload: 'auto',
+      src: currentAlarmSound.url,
+    });
     audioAlarm[0].volume = this._options.alarm.volume;
 
     const configModal = new PomodoroConfigModal(
@@ -96,7 +97,7 @@ export class AppView {
     );
 
     return {
-      rootElement: $('<div></div>').append(
+      rootElement: $$('div').append(
         timerClockComponent.rootElement,
         timerControlsComponent.rootElement,
         audioAlarm,

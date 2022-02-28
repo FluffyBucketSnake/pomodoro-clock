@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import {$$} from '../ui.mjs';
 
 function clamp(value, min, max) {
   min != undefined && (value = Math.max(value, min));
@@ -6,20 +6,14 @@ function clamp(value, min, max) {
   return value;
 }
 
-function createInputBox(type, value, id, onChanged) {
-  const inputBox = $(
-    `<input type="${type}" class="form-control text-center"/>`
-  ).val(value);
-  id && inputBox.attr('id', id);
-  onChanged && inputBox.change(onChanged);
-  return inputBox;
-}
+const createInputBox = (type, value, id, onChanged) =>
+  $$('input', 'form-control text-center', {id, type})
+    .val(value)
+    .change(onChanged);
 
 const createGroupButton = (type, text, onClick) =>
-  $(`<div class="input-group-${type}"></div>`).append(
-    $(`<button class="btn btn-outline-secondary">${text}</button>`).click(
-      onClick
-    )
+  $$('div', `input-group-${type}`).append(
+    $$('button', 'btn btn-outline-secondary', {content: text}).click(onClick)
   );
 
 export class SpinButtonComponent {
@@ -52,9 +46,7 @@ export class SpinButtonComponent {
     const inputBox = createInputBox('number', this.value, id, () =>
       this._onInputBoxChanged()
     );
-    const rootElement = $(
-      `<div class="${['input-group', ...classes].join(' ')}"></div>`
-    ).append(
+    const rootElement = $$('div', ['input-group', ...classes]).append(
       createGroupButton('prepend', '-', () => this._onDecreaseClick()),
       inputBox,
       createGroupButton('append', '+', () => this._onIncreaseClick())

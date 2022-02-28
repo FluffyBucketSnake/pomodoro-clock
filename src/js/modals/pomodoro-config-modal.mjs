@@ -1,23 +1,18 @@
-import $ from 'jquery';
 import 'bootstrap';
+import {$$, toOptions} from '../ui.mjs';
+import $ from 'jquery';
 import {SpinButtonComponent} from '../components/spin-button-component.mjs';
 
 const createSection = (title, content, isEnd = false) =>
-  $(`<section${!isEnd ? ' class="mb-5"' : ''}></section>`).append(
-    createTitleRow(title),
-    content
-  );
+  $$('section', !isEnd ? 'mb-5' : '').append(createTitleRow(title), content);
 
 const createTitleRow = (title) =>
-  $(`<div class="row justify-content-center"><h3>${title}</h3></div>`);
-
-function createRow(content) {
-  const container = $(
-    '<div class="row justify-content-center align-items-baseline"></div>'
+  $$('div', 'row justify-content-center').append(
+    $$('h3', [], {content: title})
   );
-  container.append(content);
-  return container;
-}
+
+const createRow = (content) =>
+  $$('div', 'row justify-content-center align-items-baseline').append(content);
 
 function createLabelRow(id, text, content) {
   return createRow([
@@ -38,19 +33,14 @@ function createModalHeader(title) {
 }
 
 function createModal(title, body, footer) {
-  const modalHeader = createModalHeader(title);
-  const modalBody = $('<div class="modal-body"></div>').append(body);
-  const modalFooter = $('<div class="modal-footer"></div>').append(footer);
-  const modalContent = $('<div class="modal-content"></div>').append(
-    modalHeader,
-    modalBody,
-    modalFooter
-  );
-  const modalDialog = $('<div class="modal-dialog"></div>').append(
-    modalContent
-  );
-  const modal = $('<div class="modal" tabindex="-1"></div>').append(
-    modalDialog
+  const modal = $$('div', 'modal', {tabindex: -1}).append(
+    $$('div', 'modal-dialog').append(
+      $$('div', 'modal-content').append(
+        createModalHeader(title),
+        $$('div', 'modal-body').append(body),
+        $$('div', 'modal-footer').append(footer)
+      )
+    )
   );
   return modal;
 }
@@ -109,7 +99,7 @@ export class PomodoroConfigModal {
       this._createAlarmSectionDOM(alarmSounds);
     const {rootElement: sessionSection, ...sessionInputs} =
       this._createSessionSectionDOM();
-    const rootElement = $('<div class="container-fluid"></div>').append(
+    const rootElement = $$('div', 'container-fluid').append(
       alarmSection,
       sessionSection
     );
@@ -121,21 +111,21 @@ export class PomodoroConfigModal {
   }
 
   _createAlarmSectionDOM(sounds) {
-    const inputVolume = $(`
-      <input 
-        type="range" 
-        name="volume" 
-        id="range-volume" 
-        class="col"
-        min="0" 
-        max="100"/>`).change(() => this._onInputVolumeChanged());
-    const optionsSound = sounds.map(
-      ({id, name}) => `<option value="${id}"}>${name}</option>`
-    );
-    const inputSound = $(
-      '<select name="sel-sound" id="sel-sound" class="col custom-select"></select>'
-    )
-      .append(optionsSound)
+    const inputVolume = $$('input', 'col', {
+      type: 'range',
+      name: 'volume',
+      id: 'range-volume',
+      class: 'col',
+      min: '0',
+      max: '100',
+    }).change(() => this._onInputVolumeChanged());
+
+    const soundOptions = toOptions(sounds.map(({id, name}) => [id, name]));
+    const inputSound = $$('select', 'col custom-select', {
+      id: 'sel-sound',
+      name: 'sel-sound',
+    })
+      .append(soundOptions)
       .change(() => this._onInputSoundChanged());
 
     const rootElement = createSection('Alarm', [
@@ -151,14 +141,16 @@ export class PomodoroConfigModal {
     const idInputBreakDuration = 'input-break-duration';
     const idInputLongBreakDuration = 'input-long-break-duration';
 
-    const inputHasLongBreak = $(
-      `<input type="checkbox" class="custom-control-input" id="${idInputHasLongBreak}">`
-    ).change(() => this._onInputHasLongBreakChanged());
-    const inputHasLongBreakContainer = $(
-      '<div class="col custom-control custom-switch"></div>'
+    const inputHasLongBreak = $$('input', 'custom-control-input', {
+      id: idInputHasLongBreak,
+      type: 'checkbox',
+    }).change(() => this._onInputHasLongBreakChanged());
+    const inputHasLongBreakContainer = $$(
+      'div',
+      'col custom-control custom-switch'
     ).append(
       inputHasLongBreak,
-      `<label class="custom-control-label" for="${idInputHasLongBreak}"/>`
+      $$('label', 'custom-control-label', {for: idInputHasLongBreak})
     );
     const inputWorkDuration = new SpinButtonComponent({
       id: idInputWorkDuration,
@@ -199,7 +191,9 @@ export class PomodoroConfigModal {
           inputHasLongBreakContainer
         ),
         createRow(
-          '<span class="text-muted">All durations are measured in minutes.</span>'
+          $$('span', 'text-muted', {
+            content: 'All durations are measured in minutes',
+          })
         ),
         createLabelRow(
           idInputWorkDuration,
@@ -226,17 +220,15 @@ export class PomodoroConfigModal {
   }
 
   _createFooterDOM({onSave, onReset}) {
-    const buttonReset = $(`
-      <button id="btn-reset-options" class="btn btn-secondary">
-      Reset
-      </button>
-    `);
+    const buttonReset = $$('button', 'btn btn-secondary', {
+      id: 'btn-reset-options',
+      content: 'Reset',
+    });
     onReset && buttonReset.click(() => (this.currentOptions = onReset()));
-    const buttonSave = $(`
-      <button id="btn-save" class="btn btn-success" data-dismiss="modal">
-      Save
-      </button>
-    `);
+    const buttonSave = $$('button', 'btn btn-success', {
+      'data-dismiss': 'modal',
+      content: 'Save',
+    });
     onSave && buttonSave.click(() => onSave(this.currentOptions));
 
     return [buttonReset, buttonSave];
