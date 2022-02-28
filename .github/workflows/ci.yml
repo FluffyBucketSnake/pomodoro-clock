@@ -3,10 +3,10 @@ name: CI with Node.JS
 on:
   push:
     branches: [dev, master]
-    paths: [src]
+    paths: [src/**/*]
   pull_request:
     branches: [dev, master]
-    paths: [src]
+    paths: [src/**/*]
 
 jobs:
   build:
