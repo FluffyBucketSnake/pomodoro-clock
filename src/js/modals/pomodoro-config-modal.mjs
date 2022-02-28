@@ -13,7 +13,7 @@ const createRow = (content) =>
 
 function createLabelRow(id, text, content) {
   return createRow([
-    $$('label', 'col-4 my-3', {for: id}).append(text),
+    $$('label', 'col-4 my-3', {for: id}).append(`${text}:`),
     content,
   ]);
 }
