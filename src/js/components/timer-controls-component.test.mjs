@@ -4,7 +4,7 @@ import {screen} from '@testing-library/dom';
 import $ from 'jquery';
 
 import {TimerControlsComponent} from './timer-controls-component.mjs';
-import {TimerState} from '../timer.mjs';
+import {TimerState} from '../models/timer.mjs';
 
 beforeEach(() => {
   $(document.body).empty();
