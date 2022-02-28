@@ -28,6 +28,7 @@ const DefaultOptions = {
     hasLongBreak: false,
     workDuration: 25,
     breakDuration: 5,
+    longBreakDuration: 30,
   },
 };
 
@@ -40,6 +41,7 @@ const DesiredOptions = {
     hasLongBreak: true,
     workDuration: 30,
     breakDuration: 1,
+    longBreakDuration: 40,
   },
 };
 
@@ -78,6 +80,15 @@ it.each([DefaultOptions, DesiredOptions])(
     const inputBreakDuration = screen.getByLabelText('Break dur.:');
     expect(inputBreakDuration).toBeVisible();
     expect(inputBreakDuration).toHaveValue(options.session.breakDuration);
+    if (options.session.hasLongBreak) {
+      const inputLongBreakDuration = screen.getByLabelText('Long break dur.:');
+      expect(inputLongBreakDuration).toBeVisible();
+      expect(inputLongBreakDuration).toHaveValue(
+        options.session.longBreakDuration
+      );
+    } else {
+      expect(screen.queryByLabelText('Long break dur.:')).not.toBeVisible();
+    }
   }
 );
 
@@ -142,5 +153,8 @@ function fireUserChanges(desiredOptions) {
   });
   fireEvent.change(screen.getByLabelText('Break dur.:'), {
     target: {value: desiredOptions.session.breakDuration},
+  });
+  fireEvent.change(screen.getByLabelText('Long break dur.:'), {
+    target: {value: desiredOptions.session.longBreakDuration},
   });
 }

@@ -63,6 +63,8 @@ export class PomodoroConfigModal {
       inputHasLongBreak: this._inputHasLongBreak,
       inputWorkDuration: this._inputWorkDuration,
       inputBreakDuration: this._inputBreakDuration,
+      inputLongBreakDuration: this._inputLongBreakDuration,
+      rowInputLongBreakDuration: this._rowInputLongBreakDuration,
     } = this._createDOM(props, value));
     this.currentOptions = value;
   }
@@ -75,9 +77,10 @@ export class PomodoroConfigModal {
     this._currentOptions = value;
     this._inputVolume.val(value.alarm.volume * 100);
     this._inputSound.val(value.alarm.sound.id);
-    this._inputHasLongBreak[0].checked = value.session.hasLongBreak;
+    this._toggleHasLongBreak(value.session.hasLongBreak);
     this._inputWorkDuration.value = value.session.workDuration;
     this._inputBreakDuration.value = value.session.breakDuration;
+    this._inputLongBreakDuration.value = value.session.longBreakDuration;
   }
 
   get currentOptions() {
@@ -141,9 +144,10 @@ export class PomodoroConfigModal {
   }
 
   _createSessionSectionDOM() {
+    const idInputHasLongBreak = 'input-has-long-break';
     const idInputWorkDuration = 'input-work-duration';
     const idInputBreakDuration = 'input-break-duration';
-    const idInputHasLongBreak = 'input-has-long-break';
+    const idInputLongBreakDuration = 'input-long-break-duration';
 
     const inputHasLongBreak = $(
       `<input type="checkbox" class="custom-control-input" id="${idInputHasLongBreak}">`
@@ -170,6 +174,19 @@ export class PomodoroConfigModal {
       onValueChange: (value) =>
         (this._currentOptions.session.breakDuration = value),
     });
+    const inputLongBreakDuration = new SpinButtonComponent({
+      id: idInputLongBreakDuration,
+      classes: ['col', 'px-0'],
+      min: 0,
+      max: 60,
+      onValueChange: (value) =>
+        (this._currentOptions.session.longBreakDuration = value),
+    });
+    const rowInputLongBreakDuration = createLabelRow(
+      idInputLongBreakDuration,
+      'Long break dur.',
+      inputLongBreakDuration.rootElement
+    );
 
     const rootElement = createSection(
       'Session',
@@ -192,6 +209,7 @@ export class PomodoroConfigModal {
           'Break dur.',
           inputBreakDuration.rootElement
         ),
+        rowInputLongBreakDuration,
       ],
       true
     );
@@ -200,6 +218,8 @@ export class PomodoroConfigModal {
       inputHasLongBreak,
       inputWorkDuration,
       inputBreakDuration,
+      inputLongBreakDuration,
+      rowInputLongBreakDuration,
     };
   }
 
@@ -232,7 +252,16 @@ export class PomodoroConfigModal {
   }
 
   _onInputHasLongBreakChanged() {
-    this._currentOptions.session.hasLongBreak =
-      this._inputHasLongBreak[0].checked;
+    this._toggleHasLongBreak(this._inputHasLongBreak[0].checked);
+  }
+
+  _toggleHasLongBreak(value) {
+    this._currentOptions.session.hasLongBreak = value;
+    this._inputHasLongBreak[0].checked = value;
+    if (value) {
+      this._rowInputLongBreakDuration.show();
+    } else {
+      this._rowInputLongBreakDuration.hide();
+    }
   }
 }
