@@ -1,19 +1,14 @@
 import $ from 'jquery';
 
 export function $$(type, classes = '', props = {}) {
-  const {content, ...otherProps} = props;
   if (classes instanceof Array) {
     classes = classes.join(' ');
   }
-  const attrs = classes ? {class: classes, ...otherProps} : otherProps;
+  const attrs = classes ? {class: classes, ...props} : props;
   const attrsString = Object.entries(attrs)
-    .map(([key, value]) => ` ${key}="${value}"`)
+    .map(([key, value]) => `${key}="${value}"`)
     .join(' ');
-  return $(
-    `<${type}${attrsString ? ` ${attrsString}` : ''}>${
-      content ? content : ''
-    }</${type}>`
-  );
+  return $(`<${type}${attrsString ? ` ${attrsString}` : ''}></${type}>`);
 }
 
 export const toOptions = (values = []) =>

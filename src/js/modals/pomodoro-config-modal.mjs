@@ -1,35 +1,32 @@
 import 'bootstrap';
 import {$$, toOptions} from '../ui.mjs';
-import $ from 'jquery';
 import {SpinButtonComponent} from '../components/spin-button-component.mjs';
 
 const createSection = (title, content, isEnd = false) =>
   $$('section', !isEnd ? 'mb-5' : '').append(createTitleRow(title), content);
 
 const createTitleRow = (title) =>
-  $$('div', 'row justify-content-center').append(
-    $$('h3', [], {content: title})
-  );
+  $$('div', 'row justify-content-center').append($$('h3').append(title));
 
 const createRow = (content) =>
   $$('div', 'row justify-content-center align-items-baseline').append(content);
 
 function createLabelRow(id, text, content) {
   return createRow([
-    `<label class="col-4 my-3" for="${id}">${text}:</label>`,
+    $$('label', 'col-4 my-3', {for: id}).append(text),
     content,
   ]);
 }
 
 function createModalHeader(title) {
-  return $(`
-    <div class="modal-header">
-      <h2 class="modal-title">${title}</h2>
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-  `);
+  return $$('div', 'modal-header').append(
+    $$('h2', 'modal-title').append(title),
+    $$('button', 'close', {
+      type: 'button',
+      'aria-label': 'Close',
+      'data-dismiss': 'modal',
+    }).append($$('span', '', {'aria-hidden': 'true'}).append('&times;'))
+  );
 }
 
 function createModal(title, body, footer) {
@@ -191,9 +188,9 @@ export class PomodoroConfigModal {
           inputHasLongBreakContainer
         ),
         createRow(
-          $$('span', 'text-muted', {
-            content: 'All durations are measured in minutes',
-          })
+          $$('span', 'text-muted').append(
+            'All durations are measured in minutes'
+          )
         ),
         createLabelRow(
           idInputWorkDuration,
@@ -220,15 +217,11 @@ export class PomodoroConfigModal {
   }
 
   _createFooterDOM({onSave, onReset}) {
-    const buttonReset = $$('button', 'btn btn-secondary', {
-      id: 'btn-reset-options',
-      content: 'Reset',
-    });
+    const buttonReset = $$('button', 'btn btn-secondary').append('Reset');
     onReset && buttonReset.click(() => (this.currentOptions = onReset()));
     const buttonSave = $$('button', 'btn btn-success', {
       'data-dismiss': 'modal',
-      content: 'Save',
-    });
+    }).append('Save');
     onSave && buttonSave.click(() => onSave(this.currentOptions));
 
     return [buttonReset, buttonSave];

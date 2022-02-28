@@ -97,7 +97,7 @@ export class AppView {
     );
 
     return {
-      rootElement: $$('div').append(
+      rootElement: $$('div', '', {}).append(
         timerClockComponent.rootElement,
         timerControlsComponent.rootElement,
         audioAlarm,

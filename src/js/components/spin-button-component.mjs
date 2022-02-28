@@ -13,7 +13,7 @@ const createInputBox = (type, value, id, onChanged) =>
 
 const createGroupButton = (type, text, onClick) =>
   $$('div', `input-group-${type}`).append(
-    $$('button', 'btn btn-outline-secondary', {content: text}).click(onClick)
+    $$('button', 'btn btn-outline-secondary').append(text).click(onClick)
   );
 
 export class SpinButtonComponent {

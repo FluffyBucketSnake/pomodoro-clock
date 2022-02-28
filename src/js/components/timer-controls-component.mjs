@@ -3,11 +3,13 @@ import {$$} from '../ui.mjs';
 import {TimerState} from '../models/timer.mjs';
 
 function createButton(text, onClick, {type, isHalf} = {}) {
-  return $$(
-    'button',
-    ['btn col-12', type && `btn-${type}`, isHalf && 'col-md-5'],
-    {content: text}
-  ).click(onClick);
+  return $$('button', [
+    'btn col-12',
+    type && `btn-${type}`,
+    isHalf && 'col-md-5',
+  ])
+    .append(text)
+    .click(onClick);
 }
 
 export class TimerControlsComponent {
