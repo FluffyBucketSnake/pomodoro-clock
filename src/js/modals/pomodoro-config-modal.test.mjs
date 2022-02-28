@@ -50,6 +50,8 @@ it('should show all options and configurations when shown', () => {
   );
 
   expect(screen.getByRole('heading', {name: 'Session'})).toBeVisible();
+  const inputHasLongBreak = screen.getByLabelText('Long break:');
+  expect(inputHasLongBreak).toBeVisible();
   const inputWorkDuration = screen.getByLabelText('Work dur.:');
   expect(inputWorkDuration).toBeVisible();
   expect(inputWorkDuration.value).toBe('25');

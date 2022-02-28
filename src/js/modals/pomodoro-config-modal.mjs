@@ -9,12 +9,10 @@ const createSection = (title, content, isEnd = false) =>
   );
 
 const createTitleRow = (title) =>
-  $(`<div class="row justify-content-center mb-3"><h3>${title}</h3></div>`);
+  $(`<div class="row mb-3"><h3>${title}</h3></div>`);
 
 function createRow(content) {
-  const container = $(
-    '<div class="row justify-content-center align-items-baseline"></div>'
-  );
+  const container = $('<div class="row align-items-baseline"></div>');
   container.append(content);
   return container;
 }
@@ -161,6 +159,7 @@ export class PomodoroConfigModal {
     const idInputWorkDuration = 'input-work-duration';
     const idInputBreakDuration = 'input-break-duration';
 
+    const inputHasLongBreak = $('<button>Burg</button>');
     const inputWorkDuration = new SpinButtonComponent({
       id: idInputWorkDuration,
       classes: ['col', 'px-0'],
@@ -184,6 +183,7 @@ export class PomodoroConfigModal {
         createRow(
           '<span class="text-muted mb-2">All durations are measured in minutes.</span>'
         ),
+        createLabelRow('', 'Long break:', inputHasLongBreak),
         createLabelRow(
           idInputWorkDuration,
           'Work dur.',
