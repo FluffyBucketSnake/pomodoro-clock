@@ -48,11 +48,13 @@ export class SpinButtonComponent {
     return this._rootElement;
   }
 
-  _createDOM({id}) {
+  _createDOM({id, classes = []}) {
     const inputBox = createInputBox('number', id, () =>
       this._onInputBoxChanged()
     );
-    const rootElement = $('<div class="input-group"></div>').append(
+    const rootElement = $(
+      `<div class="${['input-group', ...classes].join(' ')}"></div>`
+    ).append(
       createGroupButton('prepend', '-', () => this._onDecreaseClick()),
       inputBox,
       createGroupButton('append', '+', () => this._onIncreaseClick())
