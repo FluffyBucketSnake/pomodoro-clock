@@ -118,16 +118,23 @@ export class PomodoroConfigModal {
     }).change(() => this._onInputVolumeChanged());
 
     const soundOptions = toOptions(sounds.map(({id, name}) => [id, name]));
-    const inputSound = $$('select', 'col custom-select', {
+    const inputSound = $$('select', 'custom-select', {
       id: 'sel-sound',
       name: 'sel-sound',
     })
       .append(soundOptions)
       .change(() => this._onInputSoundChanged());
 
+    const inputGroupSound = $$('div', 'col input-group px-0').append(
+      inputSound,
+      $$('div', ' input-group-append').append(
+        $$('button', 'btn btn-outline-secondary').append('Listen')
+      )
+    );
+
     const rootElement = createSection('Alarm', [
       createLabelRow('range-volume', 'Volume', inputVolume),
-      createLabelRow('sel-sound', 'Sound', inputSound),
+      createLabelRow('sel-sound', 'Sound', inputGroupSound),
     ]);
     return {rootElement, inputVolume, inputSound};
   }

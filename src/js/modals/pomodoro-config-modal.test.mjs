@@ -65,6 +65,7 @@ it.each([DefaultOptions, DesiredOptions])(
     expect(inputAlarmSound.options[inputAlarmSound.selectedIndex].text).toBe(
       options.alarm.sound.name
     );
+    expect(screen.getByRole('button', {name: 'Listen'})).toBeVisible();
 
     expect(screen.getByRole('heading', {name: 'Session'})).toBeVisible();
     const inputHasLongBreak = screen.getByLabelText('Long break:');
