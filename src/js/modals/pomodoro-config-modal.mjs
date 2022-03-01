@@ -49,6 +49,7 @@ export class PomodoroConfigModal {
       rootElement: this._rootElement,
       inputVolume: this._inputVolume,
       inputSound: this._inputSound,
+      audioSound: this._audioSound,
       inputHasLongBreak: this._inputHasLongBreak,
       inputWorkDuration: this._inputWorkDuration,
       inputBreakDuration: this._inputBreakDuration,
@@ -65,7 +66,9 @@ export class PomodoroConfigModal {
   set currentOptions(value) {
     this._currentOptions = value;
     this._inputVolume.val(value.alarm.volume * 100);
+    this._audioSound[0].volume = value.alarm.volume;
     this._inputSound.val(value.alarm.sound.id);
+    this._audioSound[0].src = value.alarm.sound.url;
     this._toggleHasLongBreak(value.session.hasLongBreak);
     this._inputWorkDuration.value = value.session.workDuration;
     this._inputBreakDuration.value = value.session.breakDuration;
@@ -125,18 +128,25 @@ export class PomodoroConfigModal {
       .append(soundOptions)
       .change(() => this._onInputSoundChanged());
 
+    const audioSound = $$('audio', '', {
+      preload: 'auto',
+    });
+
     const inputGroupSound = $$('div', 'col input-group px-0').append(
       inputSound,
       $$('div', ' input-group-append').append(
-        $$('button', 'btn btn-outline-secondary').append('Listen')
+        $$('button', 'btn btn-outline-secondary')
+          .append('Listen')
+          .click(() => this._audioSound[0].play())
       )
     );
 
     const rootElement = createSection('Alarm', [
       createLabelRow('range-volume', 'Volume', inputVolume),
       createLabelRow('sel-sound', 'Sound', inputGroupSound),
+      audioSound,
     ]);
-    return {rootElement, inputVolume, inputSound};
+    return {rootElement, inputVolume, inputSound, audioSound};
   }
 
   _createSessionSectionDOM() {
@@ -237,12 +247,14 @@ export class PomodoroConfigModal {
   _onInputVolumeChanged() {
     this._currentOptions.alarm.volume =
       parseFloat(this._inputVolume.val()) / 100;
+    this._audioSound[0].volume = this._currentOptions.alarm.volume;
   }
 
   _onInputSoundChanged() {
     this._currentOptions.alarm.sound = this._alarmSounds.find(
       ({id}) => id === this._inputSound.val()
     );
+    this._audioSound[0].src = this._currentOptions.alarm.sound.url;
   }
 
   _onInputHasLongBreakChanged() {
