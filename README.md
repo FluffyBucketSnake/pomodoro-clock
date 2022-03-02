@@ -34,6 +34,22 @@ Based on [this app idea](https://github.com/florinpop17/app-ideas/blob/master/Pr
 
 - [ ] User can switch between english and portuguese translations.
 
+#### Dependencies
+
+##### Runtime dependencies
+
+Like stated above, only JQuery and Bootstrap 4 are used.
+
+##### Development dependencies
+
+Although only JQuery and Bootstrap 4 will be used as development dependencies, additional tooling may be used to help development.
+
+- Vite: for simplified debug and deployment;
+
+- Jest and testing-library: for unit-testing;
+
+- ESLint and Prettier: linting and formatting.
+
 ### Portuguese/Português
 
 Está aplicação foi criada para eu me familiarizar com Bootstrap 4, ao mesmo tempo que desenvolvendo minhas habilidades de design de UI e UX.
@@ -65,6 +81,22 @@ Baseado [nesta ideia de aplicativo](https://github.com/florinpop17/app-ideas/blo
 - [ ] Usuário pode dispensar alarme;
 
 - [ ] Usuário pode alternar a linguagem entre inglês e português.
+
+#### Dependências
+
+##### Dependências de execução
+
+Como dito anteriormente, apenas JQuery e Bootstrap 4 são utilizados.
+
+##### Dependências de desenvolvimento
+
+Embora apenas JQuery e Bootstrap4 serão usadas durante a execução da aplicação, outras dependências poderão ser utilizadas como ferramentas de apoio ao desenvolvimento:
+
+- Vite: para facilitar depuração e distribuição;
+
+- Jest e testing-library: para testes unitários;
+
+- ESLint e Prettier: formatação e linting.
 
 ## Media Resources/Recursos Midiáticos
 
