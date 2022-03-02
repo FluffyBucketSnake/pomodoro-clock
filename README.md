@@ -28,7 +28,7 @@ Based on [this app idea](https://github.com/florinpop17/app-ideas/blob/master/Pr
 
 - [x] User can define a long break session every 4th break session;
 
-- [ ] User can play a sample of the alarm sound;
+- [x] User can play a sample of the alarm sound;
 
 - [ ] User can dismiss alarm;
 
@@ -60,7 +60,7 @@ Baseado [nesta ideia de aplicativo](https://github.com/florinpop17/app-ideas/blo
 
 - [x] Usuário pode definir um descanso longo a cada 4ª sessão de descanso;
 
-- [ ] Usuário pode testar o som de alarme que escolheu;
+- [x] Usuário pode testar o som de alarme que escolheu;
 
 - [ ] Usuário pode dispensar alarme;
 
