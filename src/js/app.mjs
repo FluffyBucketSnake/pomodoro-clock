@@ -78,6 +78,7 @@ export class App {
     this.currentSession.stop();
     this.currentSession = null;
     this._view.timerState = TimerState.Stopped;
+    this._view.stopAlarm();
   }
 
   _onPauseTimerClicked() {
