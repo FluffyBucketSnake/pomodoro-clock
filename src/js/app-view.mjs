@@ -53,6 +53,13 @@ export class AppView {
 
   ringAlarm() {
     this._audioAlarm[0].play();
+    this._timerClockComponent.showBell = true;
+  }
+
+  stopAlarm() {
+    this._audioAlarm[0].pause();
+    this._audioAlarm[0].src = this._audioAlarm[0].src;
+    this._timerClockComponent.showBell = false;
   }
 
   _createDOM({
@@ -65,7 +72,9 @@ export class AppView {
     onOptionsSave,
     onOptionsReset,
   }) {
-    const timerClockComponent = new TimerClockComponent();
+    const timerClockComponent = new TimerClockComponent({
+      onAlarmBellClick: () => this.stopAlarm(),
+    });
 
     const timerControlsEvents = {
       onStart: onTimerStart,
@@ -85,6 +94,7 @@ export class AppView {
       preload: 'auto',
       src: currentAlarmSound.url,
     });
+    audioAlarm.on('ended', () => this.stopAlarm());
     audioAlarm[0].volume = this._options.alarm.volume;
 
     const configModal = new PomodoroConfigModal(

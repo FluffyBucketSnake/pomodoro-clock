@@ -9,13 +9,14 @@ export const SessionType = {
 };
 
 export class TimerClockComponent {
-  constructor() {
+  constructor(props) {
     ({
       rootElement: this._rootElement,
+      alarmBell: this._alarmBell,
       spanTime: this._spanTime,
       spanState: this._spanState,
       spanSession: this._spanSession,
-    } = this._createDOM());
+    } = this._createDOM(props));
     this.duration = 0;
     this.elapsedTime = 0;
     this.session = 0;
@@ -43,25 +44,45 @@ export class TimerClockComponent {
   set sessionType(value) {
     this._sessionType = value;
     this._updateStateText();
-    this._updateRootElementClasses();
+    this._updateSessionTypeClasses();
+  }
+
+  set showBell(value) {
+    if (value) {
+      this._alarmBell.show();
+    } else {
+      this._alarmBell.hide();
+    }
   }
 
   set timerState(value) {
     this._timerState = value;
     this._updateStateText();
-    this._updateRootElementClasses();
+    this._updateSessionTypeClasses();
   }
 
   get rootElement() {
     return this._rootElement;
   }
 
-  _createDOM() {
+  _createDOM({onAlarmBellClick}) {
+    const alarmBell = $$('a', 'btn pc-tc-bell')
+      .append(
+        `
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 16 16">
+        <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
+      </svg>
+    `
+      )
+      .hide();
+    onAlarmBellClick && alarmBell.click(onAlarmBellClick);
+
     const spanTime = $$('span', 'pc-tc-time');
     const spanState = $$('span', 'pc-tc-state');
     const spanSession = $$('span', 'pc-tc-session');
 
     const timerOverlay = $$('div', 'pc-tc-overlay').append(
+      alarmBell,
       spanTime,
       spanState,
       spanSession
@@ -69,7 +90,7 @@ export class TimerClockComponent {
 
     const rootElement = $$('div', 'pc-tc mx-auto mb-5').append(timerOverlay);
 
-    return {rootElement, spanTime, spanState, spanSession};
+    return {rootElement, alarmBell, spanTime, spanState, spanSession};
   }
 
   _updateTimeText() {
@@ -95,12 +116,14 @@ export class TimerClockComponent {
     );
   }
 
-  _updateRootElementClasses() {
-    this._rootElement.removeClass(PomodoroClockState.Inactive);
-    this._rootElement.removeClass(PomodoroClockState.Work);
-    this._rootElement.removeClass(PomodoroClockState.Break);
+  _updateSessionTypeClasses() {
+    this._rootElement.removeClass(PomodoroClockStates);
+    this._alarmBell.removeClass(PomodoroClockStates);
+    this._spanTime.removeClass(PomodoroClockStates);
     const newClass = getPomodoroClockState(this._timerState, this._sessionType);
     this._rootElement.addClass(newClass);
+    this._alarmBell.addClass(newClass);
+    this._spanTime.addClass(newClass);
     this._updateGradient();
   }
 }
@@ -110,6 +133,8 @@ const PomodoroClockState = {
   Work: 'work',
   Break: 'break',
 };
+
+const PomodoroClockStates = Object.values(PomodoroClockState);
 
 function getTimeText(duration, elapsedTime) {
   const durationInSeconds = Math.floor(toSecs(duration));
