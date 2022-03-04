@@ -11,7 +11,7 @@ const getDefaultOptions = () => ({
     hasLongBreak: false,
     workDuration: 25,
     breakDuration: 5,
-    longBreakDuration: 30,
+    longBreakDuration: 10,
   },
 });
 
